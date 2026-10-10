@@ -165,7 +165,7 @@ end
 
 local _CanEntitySeeInStorm = CanEntitySeeInStorm
 function CanEntitySeeInStorm(inst, ...)
-    return _CanEntitySeeInStorm(inst, ...) or um_CanEntitySeeInStorm(inst)
+    return um_CanEntitySeeInStorm(inst) or _CanEntitySeeInStorm(inst, ...)
 end
 
 _G.UMSimTempOverride = {}
