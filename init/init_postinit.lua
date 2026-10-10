@@ -112,6 +112,7 @@ local prefab_post = {
     "walls",
     "infestables",
     "foodbuffs",
+    "hermitcrabtea_buffs",
     "mutatedhound",
     "skeleton",
     "berrybush",
