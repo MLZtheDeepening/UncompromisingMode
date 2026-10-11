@@ -317,7 +317,7 @@ env.AddPrefabPostInit("spider", function(inst)
     inst:AddComponent("tradable")
 end)
 
-SetSharedLootTable( 'spider_warrior',
+SetSharedLootTable('spider_warrior',
 {
     {'monstermeat',  1.00},
 })
@@ -359,7 +359,7 @@ env.AddPrefabPostInit("spider_dropper", function(inst)
     end
 end)
 
-SetSharedLootTable( 'um_spider_moon',
+SetSharedLootTable('um_spider_moon',
 {
     {'moonglass',  1.00},
 })
