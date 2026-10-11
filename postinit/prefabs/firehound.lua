@@ -1,8 +1,15 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------
+SetSharedLootTable('hound_fire',
+{
+    { 'monstermeat', 1.0 },
+    { 'houndstooth', 1.0 },
+    { 'redgem',      0.3 },
+})
+
 local function RechargeSpitfireAttack(inst)
-    inst.spitfireready = true
+    inst.um_specialattackready = true
     inst.components.combat:SetRange(6, 3)
 
     -- Original Range variables from combat
@@ -66,17 +73,11 @@ env.AddPrefabPostInit("firehound", function(inst)
     inst:AddComponent("timer")
     inst:ListenForEvent("timerdone", RechargeSpitfireAttack)
 
-    if not inst.spitfireready then -- If spawned, just give a small gap till it's time to spit again.
+    if not inst.um_specialattackready then -- If spawned, just give a small gap till it's time to spit again.
         inst:DoTaskInTime(math.random(4, 8), RechargeSpitfireAttack)
     end
 
     inst.ShootFire = ShootFire
     inst.components.health.fire_damage_scale = 0 --AXE Fire hounds are Immune to the damage from fire as well as not burnable
     inst.FirePoof = FirePoof
-    SetSharedLootTable('hound_fire',
-        {
-            { 'monstermeat', 1.0 },
-            { 'houndstooth', 1.0 },
-            { 'redgem',      0.3 },
-        })
 end)

@@ -51,7 +51,7 @@ end
 local brain = require("brains/houndbrain")
 local rnebrain = require("brains/rnehoundbrain")
 local moonbrain = require("brains/moonbeastbrain")
-local sporebrain = require "brains/sporehoundbrain"
+local sporebrain = require("brains/sporehoundbrain")
 
 local sounds =
 {
@@ -632,7 +632,14 @@ local function fncommon(bank, build, morphlist, custombrain, stategraph, tags, d
 end
 
 local function ontimerdone(inst, data)
-    if data.name == "lightningshot_cooldown" then inst.lightningshot = true end
+    if data.name == "lightningshot_cooldown" then
+        inst.um_specialattackready = true
+        if inst.UMToggleCombatRange then inst:UMToggleCombatRange(true) end
+    end
+end
+
+local function ToggleCombatRange(inst, toggle)
+    inst.components.combat:SetRange(toggle and 10 or 3, 3)
 end
 
 local function DoLightningExplosion(inst)
@@ -678,6 +685,9 @@ local function fnlightning()
 
     inst.components.lootdropper:SetChanceLootTable("hound_lightning")
 
+    inst.UMToggleCombatRange = ToggleCombatRange
+    inst:UMToggleCombatRange(true)
+
     inst.components.combat:SetRange(10, 3)
 
     inst:AddComponent("timer")
@@ -692,7 +702,7 @@ local function fnlightning()
     inst:ListenForEvent("attacked", OnLightningAttacked)
     inst:ListenForEvent("death", DoLightningExplosion)
 
-    inst.lightningshot = true
+    inst.um_specialattackready = true
 
     return inst
 end
@@ -867,7 +877,7 @@ local function fnglacial()
     inst.CancelCharge = CancelGlacialCharge
     inst.Charge = GlacialCharge
 
-    inst.lightningshot = true
+    inst.um_specialattackready = true
 
     return inst
 end
@@ -1078,7 +1088,7 @@ local function SetUpFire(inst, degrand, speed, scale, damage)
     projectile.um_damager = inst
 end
 
-local function ShootFireMagmaHound(inst, total_flame) --AXE obviously called by magmahound to perform its continuous fire breath attack
+local function ShootFire(inst, total_flame) --AXE obviously called by magmahound to perform its continuous fire breath attack
     for i = 1, total_flame do
         inst:DoTaskInTime(0 + math.random(1, 15) * FRAMES, function(inst)
             SetUpFire(inst, 5, 20, .8 + math.random(0, 10) / 100, TUNING.DSTU.MAGMA_HOUND_FIRE_DAMAGE)
@@ -1117,7 +1127,7 @@ local function fnmagma()
 
     inst.UMIsAlly = IsAlly
 
-    inst.ShootFire = ShootFireMagmaHound
+    inst.ShootFire = ShootFire
 
     --[[if inst.sg ~= nil then
         inst.sg:GoToState("idle")
@@ -1133,7 +1143,8 @@ local function fnmagma()
     inst.components.combat:SetDefaultDamage(TUNING.DSTU.MAGMA_HOUND_DAMAGE)
     inst.components.health:SetMaxHealth(TUNING.DSTU.MAGMA_HOUND_HEALTH)
 
-    inst.components.combat:SetRange(10, 3)
+    inst.UMToggleCombatRange = ToggleCombatRange
+    inst:UMToggleCombatRange(true)
 
     --inst.components.freezable:SetResistance(4)
 
@@ -1149,7 +1160,7 @@ local function fnmagma()
 
     inst.foogley = 0
 
-    inst.lightningshot = true
+    inst.um_specialattackready = true
     inst.components.health.fire_damage_scale = 0 --AXE Magma hounds should take zero damage from the fire damage stimuli
 
     return inst
@@ -1191,7 +1202,7 @@ local function SpawnSporeCloud(inst)
     sporecloud:ListenForEvent("onremove", sporecloud.OnSporeHoundRemoved)
 end
 
-local function SporeCloudAttack(inst, target)
+local function SporeCloudAttack(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
     local ents = TheSim:FindEntities(x, y, z, 2.5, {"_combat"}, {"wall", "hound", "houndfriend", "houndmound"})
     for i, v in ipairs(ents) do
@@ -1224,7 +1235,7 @@ local function fnspore()
 
     --inst:SetBrain(sporebrain)
 
-    inst.lightningshot = true
+    inst.um_specialattackready = true
 
     inst:AddComponent("timer")
     inst:ListenForEvent("timerdone", ontimerdone)
@@ -1234,7 +1245,7 @@ local function fnspore()
     MakeMediumFreezableCharacter(inst, "hound_body")
     MakeMediumBurnableCharacter(inst, "hound_body")
 
-    inst.LaunchProjectile = SporeCloudAttack
+    inst.SporeCloudAttack = SporeCloudAttack
 
     inst:ListenForEvent("death", DoSporeExplosion)
     inst:ListenForEvent("onhitother", OnHitOther_Spore)
