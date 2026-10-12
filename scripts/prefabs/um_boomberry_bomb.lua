@@ -17,7 +17,8 @@ local function OnHitBoomBerry(inst, attacker, target)
     puddle.playermade = true
 
     puddle.SoundEmitter:PlaySound("turnoftides/creatures/together/starfishtrap/trap")
-    local um_explodeparams = {explosiverange = 3, explosivedamage = TUNING.DSTU.BOOMBERRYBOMB_DAMAGE, onexplodefn_pst = OnExplodePst}
+    local um_explodeparams = {explosiverange = 3, explosivedamage = TUNING.DSTU.BOOMBERRYBOMB_DAMAGE, onexplodefn_pst = OnExplodePst,
+        skip_camera_flash = true}
     if inst.ispvp then
         um_explodeparams.pvpattacker = attacker
     else
