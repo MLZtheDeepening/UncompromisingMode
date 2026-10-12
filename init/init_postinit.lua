@@ -11,7 +11,7 @@ local component_post = {
     --"hunter",
     "kramped",
     "explosiveresist",
-    "workable",
+    --"workable",
     "sleepingbaguser",
     "hounded",
     "sleeper",
