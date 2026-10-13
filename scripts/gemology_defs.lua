@@ -380,7 +380,7 @@ local function ShockChain(inst, attacker, target, tier)
     local x, y, z = target.Transform:GetWorldPosition()
     for i, v in ipairs(TheSim:FindEntities(x, y, z, TUNING.DSTU.YELLOWGEM2_SHOCK_RANGE, arc_cantarget, arc_canttarget)) do
         if v ~= target and v.components.health and not v.components.health:IsDead() and attacker.components.combat
-            and not attacker.components.combat:IsAlly(v) and attacker.components.combat:CanTarget(v) then
+            and attacker.components.combat:CanTarget(v) and not attacker.components.combat:IsAlly(v) then
             local dist = math.sqrt(target:GetDistanceSqToInst(v))
             local damage = inst.components.weapon:GetDamage(attacker, v) * math.clamp(TUNING.DSTU.YELLOWGEM2_SHOCK_DIST_FACTOR - dist, TUNING.DSTU.YELLOWGEM2_SHOCK_MULT_RANGES[tier][1], TUNING.DSTU.YELLOWGEM2_SHOCK_MULT_RANGES[tier][2])
             v:DoTaskInTime(dist / TUNING.DSTU.YELLOWGEM2_ATTACK_TIME_FACTOR, function(_inst, _attacker, weapon, _damage)

@@ -23,17 +23,14 @@ local function OnAttack(inst, attacker, target)
             target.components.freezable:SpawnShatterFX()
         end
 
-        local ents = TheSim:FindEntities(x, y, z, 2.5, nil, {"INLIMBO", "player", "companion", "abigail", "shadowminion"})
-        for i, v in ipairs(ents) do
-            if v ~= inst and v ~= target and v:IsValid() and not v:IsInLimbo() then
-                if v.components.combat and not (v.components.health and v.components.health:IsDead())
-                    and attacker.components.combat:CanTarget(v) and not attacker.components.combat:IsAlly(v) then
-                    v.components.combat:GetAttacked(attacker, TUNING.DSTU.CURSED_ANTLER_AOE_DAMAGE)
+        for i, v in ipairs(TheSim:FindEntities(x, y, z, 2.5, nil, {"INLIMBO", "player", "companion", "abigail", "shadowminion"})) do
+            if v ~= inst and v ~= target and v:IsValid() and v.components.combat and not (v.components.health and v.components.health:IsDead())
+                and attacker.components.combat:CanTarget(v) and not attacker.components.combat:IsAlly(v) then
+                v.components.combat:GetAttacked(attacker, TUNING.DSTU.CURSED_ANTLER_AOE_DAMAGE)
 
-                    if v.components.freezable and not v.components.freezable:IsFrozen() then
-                        v.components.freezable:AddColdness(.5)
-                        v.components.freezable:SpawnShatterFX()
-                    end
+                if v.components.freezable and not v.components.freezable:IsFrozen() then
+                    v.components.freezable:AddColdness(.5)
+                    v.components.freezable:SpawnShatterFX()
                 end
             end
         end
