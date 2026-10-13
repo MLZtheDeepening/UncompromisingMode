@@ -1396,8 +1396,8 @@ table.insert(GLOBAL.FOODGROUP.OMNI.types,GLOBAL.FOODTYPE.LICHEN)
 AddPrefabPostInit("cutlichen", function(inst)
     if not _G.TheWorld.ismastersim then return end
 
-    inst:AddComponent("edible")
-    inst.components.edible.secondaryfoodtype = GLOBAL.FOODTYPE.LICHEN
+    local edible = inst.components.edible
+    if edible then edible.secondaryfoodtype = GLOBAL.FOODTYPE.LICHEN end
 end)
 
 local UMUpvalueHacker = require("tools/um_upvaluehacker")
