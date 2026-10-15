@@ -493,36 +493,13 @@ AddComponentAction("USEITEM", "boatbottle",
 AddStategraphActionHandler("wilson", GLOBAL.ActionHandler(GLOBAL.ACTIONS.STORE_BOAT, "dolongaction"))
 AddStategraphActionHandler("wilson_client", GLOBAL.ActionHandler(GLOBAL.ACTIONS.STORE_BOAT, "dolongaction"))
 
-if TUNING.DSTU.WARLY_CHANGES ~= 0 then
-    local _murderfn = GLOBAL.ACTIONS.MURDER.fn
-    GLOBAL.ACTIONS.MURDER.fn = function(act)
-        local murdered = act.invobject or act.target
-        if murdered ~= nil and (murdered.components.health ~= nil or murdered.components.murderable ~= nil) and act.doer ~= nil and act.doer:HasTag("masterchef") then
-            local stacksize = murdered.components.stackable ~= nil and murdered.components.stackable:StackSize() or 1
-            local x, y, z = act.doer.Transform:GetWorldPosition()
-
-            if murdered.components.lootdropper ~= nil then
-                murdered.causeofdeath = act.doer
-                local pos = GLOBAL.Vector3(x, y, z)
-                for i = 1, stacksize do
-                    local loots = murdered.components.lootdropper:GenerateLoot()
-                    local lootprefab = loots[#loots > 1 and math.random(#loots) or 1]
-
-                    if lootprefab ~= nil then
-                        local loot = GLOBAL.SpawnPrefab(lootprefab)
-                        if loot ~= nil then
-                            act.doer.components.inventory:GiveItem(loot, nil, pos)
-                        end
-                    end
-                end
-            end
-
-            if murdered.components.inventory and murdered:HasTag("drop_inventory_onmurder") then
-                murdered.components.inventory:TransferInventory(act.doer)
-            end
-        end
-        return _murderfn(act)
+local MURDER_fn = GLOBAL.ACTIONS.MURDER.fn
+GLOBAL.ACTIONS.MURDER.fn = function(act, ...)
+    local murdered = act.invobject or act.target
+    if murdered and (murdered.components.health or murdered.components.murderable) then
+        murdered.um_wasmurdered = true
     end
+    return MURDER_fn(act, ...)
 end
 
 if TUNING.DSTU.WXLESS then
@@ -953,7 +930,6 @@ UM_COOL_MAGMA_WATER.fn = function(act)
 end
 
 env.AddAction(UM_COOL_MAGMA_WATER)
-
 
 env.AddComponentAction("POINT", "magma_cooler", function(inst, doer, pos, actions, right, target)
     local tx, tz = TheWorld.Map:GetTileCoordsAtPoint(pos:Get())
