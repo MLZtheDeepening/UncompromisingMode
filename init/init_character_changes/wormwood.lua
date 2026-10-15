@@ -217,9 +217,11 @@ if TUNING.DSTU.WORMWOOD_PHOTOSYNTHESIS then
         if toggle then
             inst:ListenForEvent("attacked", VetCurseCancelHealing)
             inst:ListenForEvent("firedamage", VetCurseCancelHealing)
+            inst.um_wormwood_vetcurse = true
         else
             inst:RemoveEventCallback("attacked", VetCurseCancelHealing)
             inst:RemoveEventCallback("firedamage", VetCurseCancelHealing)
+            inst.um_wormwood_vetcurse = nil
         end
     end
 

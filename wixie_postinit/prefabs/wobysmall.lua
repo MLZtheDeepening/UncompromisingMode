@@ -133,8 +133,33 @@ local function CustomFoodStatsMod(inst, health_delta, hunger_delta, sanity_delta
     return health_delta, hunger_delta, sanity_delta
 end
 
-env.AddPrefabPostInit("wobysmall", function(inst) 
+local _OnPet
+local function OnPet(inst, petter, ...)
+    if petter and petter:HasTag("vetcurse") and petter.components.sanity:GetPenaltyPercent() ~= 0 and not inst.components.timer:TimerExists("um_wobypetsanity_cooldown") then
+        inst.components.timer:StartTimer("um_wobypetsanity_cooldown", TUNING.TOTAL_DAY_TIME)
+        local takethepenaltyaway = petter.components.sanity:GetPenaltyPercent() - .05
+        petter.components.sanity:AddSanityPenalty(petter, math.max(takethepenaltyaway, 0))
+    end
+    return _OnPet and _OnPet(inst, petter, ...)
+end
 
+local function OnTimerDone(inst, data)
+    if data.name == "um_wobypetsanity_cooldown" and inst.sg.currentstate.name ~= "transform" then
+        inst.sg:GoToState(inst.sg:HasState("woby_does_a_flip") and "woby_does_a_flip" or "idle")
+    end
+end
+
+local function OnWobyDroppedItem(inst, data)
+    if inst._playerlink ~= nil and inst._playerlink.components.health ~= nil and not inst._playerlink.components.health:IsDead() then
+        if data.dropped_item == nil or data.dropped_item ~= nil and not data.dropped_item:HasTag("heavy") then
+            inst._playerlink.components.talker:Say(GetString(inst._playerlink, "ANNOUNCE_WOBY_TOOFULL"))
+        end
+        inst.wobytarget = nil
+        inst.oldwobytarget = nil
+    end
+end
+
+env.AddPrefabPostInit("wobysmall", function(inst) 
     inst:AddTag("customwobytag")
     inst:AddTag("noauradamage")
     inst:AddTag("tiddlevirusimmune")
@@ -178,36 +203,17 @@ env.AddPrefabPostInit("wobysmall", function(inst)
         inst.components.inspectable.getstatus = inspect_woby
     end
 
-    local _OnPet = inst.components.crittertraits.onpetfn
-    local function OnPet(inst, petter, ...)
-        if petter and petter:HasTag("vetcurse") and petter.components.sanity:GetPenaltyPercent() ~= 0 and not inst.components.timer:TimerExists("um_wobypetsanity_cooldown") then
-            inst.components.timer:StartTimer("um_wobypetsanity_cooldown", TUNING.TOTAL_DAY_TIME)
-            local takethepenaltyaway = petter.components.sanity:GetPenaltyPercent() - .05
-            petter.components.sanity:AddSanityPenalty(petter, math.max(takethepenaltyaway, 0))
+    local crittertraits = inst.components.crittertraits
+    if crittertraits then
+        if not _OnPet then
+            _OnPet = crittertraits.onpetfn
         end
-        _OnPet(inst, petter, ...)
-    end
-    
-    local function OnUMPetTimerDone(inst)
-        if inst.sg.currentstate.name ~= "transform" then
-            inst.sg:GoToState(inst.sg:HasState("woby_does_a_flip") and "woby_does_a_flip")
-        end
+        crittertraits:SetOnPetFn(OnPet)
     end
 
-    inst.components.crittertraits:SetOnPetFn(OnPet)
-    inst:ListenForEvent("timerdone", OnUMPetTimerDone)
-    
+    inst:ListenForEvent("timerdone", OnTimerDone)
 
-    inst:ListenForEvent("woby_dropped_item", function(inst, data)
-        if inst._playerlink ~= nil and inst._playerlink.components.health ~= nil and not inst._playerlink.components.health:IsDead() then
-            if data.dropped_item == nil or data.dropped_item ~= nil and not data.dropped_item:HasTag("heavy") then
-                inst._playerlink.components.talker:Say(GetString(inst._playerlink, "ANNOUNCE_WOBY_TOOFULL"))
-            end
-            
-            inst.wobytarget = nil
-            inst.oldwobytarget = nil
-        end
-    end)
+    inst:ListenForEvent("woby_dropped_item", OnWobyDroppedItem)
     
     inst:DoPeriodicTask(2, CheckForMoreTargets)
 end)
