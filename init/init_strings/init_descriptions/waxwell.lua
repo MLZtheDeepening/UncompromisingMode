@@ -570,6 +570,14 @@ DESCRIBE.UM_BOATBOTTLE = {
     EMPTY = "I wouldn't want to know what happens if it breaks open in my pocket."
 }
 
+--[[ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {
+    "This isn't exactly my forte.",
+    "Don't make this harder than it needs to be.",
+    "I'm making a fool of myself!",
+    "How troublesome, why won't you sit still?",
+    "How humiliating... I'll try again once it's landed."
+}]]
+
 DESCRIBE.WATHOM_CORPSE = "Still clinging to life are we?"
 
 DESCRIBE.WATHGRITHR_SHIELD_DREADSTONE = "She has clouded her mind with protection by any means necessary."

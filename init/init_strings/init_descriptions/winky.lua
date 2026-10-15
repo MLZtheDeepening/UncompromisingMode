@@ -665,6 +665,13 @@ DESCRIBE.UM_BOATBOTTLE = {
     EMPTY = "This would look good on my shelf."
 }
 
+--[[ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {
+    "How is it so slippery!?",
+    "Why can't you always just be sitting on those stupid flowers?",
+    "Stop slipping through my claws!",
+    "I am getting bored."
+}]]
+
 DESCRIBE.WATHOM_CORPSE = "How. You died. You can't just... get back up?"
 
 DESCRIBE.WATHGRITHR_SHIELD_DREADSTONE = "Thouching it makes me shiver."

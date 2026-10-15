@@ -18,6 +18,12 @@ env.AddClassPostConstruct("components/combat_replica", function(self)
         return ret
     end
 
+    --[[local _CanTarget = self.CanTarget
+    function self:CanTarget(target, ...)
+        if target and target:HasTag("um_slippery") and not self.inst.isplayer then return false end
+        return _CanTarget(self, target, ...)
+    end]]
+
     local _IsValidTarget = self.IsValidTarget
     function self:IsValidTarget(target, ...)
         if not target or target == self.inst or not (target.entity:IsValid() and target.entity:IsVisible()) then

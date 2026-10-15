@@ -610,6 +610,14 @@ DESCRIBE.UM_BOATBOTTLE = {
     EMPTY = "It's safe from fire in there, let's fix that by opening it!"
 }
 
+--[[ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {
+    "I don't have the patience for this!",
+    "Stay still while I hit you!",
+    "You think you're so pretty and elegant. I'll show you.",
+    "I'll burn those stupid flowers you love sitting on so much!",
+    "This would be easier if it sat still for once."
+}]]
+
 DESCRIBE.WATHOM_CORPSE = "You're done, already?! Come ON, get back up!"
 
 DESCRIBE.WATHGRITHR_SHIELD_DREADSTONE = "That looks more menacing than most weapons."

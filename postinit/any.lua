@@ -319,6 +319,13 @@ function EntityScript:SpawnChild(name, ...)
     return _SpawnChild(self, name, ...)
 end
 
+--[[local _PushEvent = EntityScript.PushEvent
+function EntityScript:PushEvent(event, data, ...)
+    if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and event == "onattackother" and data and data.target and data.target.UMSlipAway
+        and data.target:UMSlipAway({attacker = self, weapon = data.weapon, stimuli = data.stimuli}) then return end
+    return _PushEvent(self, event, data, ...)
+end]]
+
 local UM_BLOCKED_STATES = {"wortox_teleport_reviver_selfuse"}
 local _GoToState = StateGraphInstance.GoToState
 function StateGraphInstance:GoToState(statename, ...)
