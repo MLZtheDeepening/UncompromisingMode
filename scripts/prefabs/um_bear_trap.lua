@@ -121,7 +121,11 @@ local function OnExplode(inst, target)
             inst.deathtask = nil
         end
 
-        target.components.combat:GetAttacked(target.components.combat and target.components.combat.target or inst, TUNING.TRAP_TEETH_DAMAGE * (inst.traptype == "gold" and 1.5 or 1))
+        target.components.combat:GetAttacked(inst, TUNING.TRAP_TEETH_DAMAGE * (inst.traptype == "gold" and 1.5 or 1) * (inst.components.stackable and inst.components.stackable:StackSize() or 1))
+        local combattarget = target.components.combat.target or inst
+        if combattarget and combattarget:IsValid() and target:IsValid() and target.components.combat and not (target.components.health and target.components.health:IsDead()) then
+            target.components.combat:SuggestTarget(combattarget)
+        end
 
         inst.latchedtarget = target
 
@@ -723,6 +727,7 @@ local function equipgoldfn()
     inst:AddTag("bear_trap")
     inst:AddTag("noclaustrophobia")
     inst:AddTag("donotautopick")
+
     MakeInventoryFloatable(inst, "med", .05, .65)
 
     inst.entity:SetPristine()
