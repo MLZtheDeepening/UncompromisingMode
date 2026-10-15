@@ -4,21 +4,6 @@ local UMUpvalueHacker = GLOBAL.require("tools/um_upvaluehacker")
 local TheNet = GLOBAL.TheNet
 
 if TUNING.DSTU.WORTOXCHANGES then
-
-    
-    --------------------------------------------------------------------------------------------------------------------------------
-    -- [ Soul Changes, will eventually remove them after these lower-effort enemies have more nuance to killing a lot of them ] ----
-    --------------------------------------------------------------------------------------------------------------------------------
-    if TUNING.DSTU.BUTTERFLYWINGS_NERF == "stat_nerf" then
-        AddPrefabPostInitAny(function(inst)
-            if not GLOBAL.TheWorld.ismastersim then
-                return
-            end
-            if inst:HasTag("butterfly") then
-                inst:AddTag("soulless")
-            end
-        end)
-    end
     --------------------------------------------------------------------------------------------------------------------------------
     -- [ Soul Healing Changes ] ----------------------------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------------------------------------------    
