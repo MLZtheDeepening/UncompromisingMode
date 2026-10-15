@@ -496,10 +496,10 @@ AddStategraphActionHandler("wilson_client", GLOBAL.ActionHandler(GLOBAL.ACTIONS.
 local MURDER_fn = GLOBAL.ACTIONS.MURDER.fn
 GLOBAL.ACTIONS.MURDER.fn = function(act, ...)
     local murdered = act.invobject or act.target
-    if murdered and (murdered.components.health or murdered.components.murderable) then
-        murdered.um_wasmurdered = true
-    end
-    return MURDER_fn(act, ...)
+    if murdered and (murdered.components.health or murdered.components.murderable) then murdered.um_wasmurdered = true end
+    local ret = {MURDER_fn(act, ...)}
+    if murdered:IsValid() and murdered.um_wasmurdered then murdered.um_wasmurdered = nil end
+    return unpack(ret)
 end
 
 if TUNING.DSTU.WXLESS then

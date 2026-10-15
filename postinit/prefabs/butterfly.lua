@@ -13,27 +13,27 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "petals" then
         end
     end
 
-    local butterflies = {"butterfly", "um_buttery_fly", "moonbutterfly"}
-    for i,v in ipairs(butterflies) do
-        env.AddPrefabPostInit(v, function(inst)
+    local butterflies = {["butterfly"] = {"petals"}, ["um_buttery_fly"] = {"petals", "petals"}, ["moonbutterfly"] = {"moon_tree_blossom"}}
+    for prefab, petaltable in pairs(butterflies) do
+        env.AddPrefabPostInit(prefab, function(inst)
             if not TheWorld.ismastersim then return end
 
-            inst.um_petaldrop = v == "moonbutterfly" and "moon_tree_blossom" or "petals"
+            inst.um_petaldroptable = petaltable
 
             local lootdropper = inst.components.lootdropper
             if lootdropper then
                 local _LootSetupFn = lootdropper.lootsetupfn
                 lootdropper:SetLootSetupFn(function(_lootdropper, ...)
-                    local inst = _lootdropper.inst
-                    if not inst.um_wasmurdered then
+                    local _inst = _lootdropper.inst
+                    if not _inst.um_wasmurdered then
                         _lootdropper:SetChanceLootTable(nil) -- Moon Moth sets a chance loot table that needs to be cleared here.
-                        _lootdropper:SetLoot({inst.um_petaldrop or "petals"})
+                        _lootdropper:SetLoot(_inst.um_petaldroptable or {"petals"})
                     end
                     return _LootSetupFn and _LootSetupFn(_lootdropper, ...)
                 end)
             end
 
-            if v == "butterfly" then
+            if prefab == "butterfly" then
                 if lootdropper then lootdropper:SetLoot({"butterflywings"}) end
 
                 local _OnSave = inst.OnSave
@@ -60,16 +60,6 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "petals" then
         env.AddPrefabPostInit(v, function(inst)
             if not TheWorld.ismastersim then return end
             inst:WatchWorldState("isday", ReEnableButterfly)
-        end)
-    end
-    
-    -- Burnable Butterfly Wings.
-    local wing_types = {"butterflywings", "moonbutterflywings"}
-    for i,v in ipairs(wing_types) do
-        env.AddPrefabPostInit(v, function(inst)
-            MakeSmallBurnable(inst, TUNING.SMALL_BURNTIME)
-            MakeSmallPropagator(inst)
-            MakeHauntableLaunchAndIgnite(inst)
         end)
     end
 
