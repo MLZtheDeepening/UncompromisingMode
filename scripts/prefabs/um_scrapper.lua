@@ -299,6 +299,16 @@ local function AcceptTest(inst, item, giver)
 	return AllRecipes[item.prefab] ~= nil
 end
 
+local function OnConstructed(inst, doer)
+	if inst.components.constructionsite:IsComplete() then
+		--inst:Remove()
+		--inst:RemoveTag("constructionsite")
+		inst.components.constructionsite:Disable()
+	else
+		inst.SoundEmitter:PlaySound("dontstarve/wilson/pickup_wood")
+	end
+end
+
 local function init(inst)
     if inst.icon == nil then
         inst.icon = SpawnPrefab("globalmapicon")
@@ -327,6 +337,8 @@ local function fn()
 	inst:AddTag("air_conditioner")
 	inst:AddTag("structure")
 	inst:AddTag("chest")
+	--constructionsite (from constructionsite component) added to pristine state for optimization
+	inst:AddTag("constructionsite")
 
 	MakeSnowCoveredPristine(inst)
 
@@ -363,6 +375,10 @@ local function fn()
 	inst.components.channelable.skip_state_stopchanneling = true
 	inst.components.channelable.skip_state_channeling = true
 	inst.components.channelable.ignore_prechannel = true
+
+	inst:AddComponent("constructionsite")
+	inst.components.constructionsite:SetConstructionPrefab("construction_container")
+	inst.components.constructionsite:SetOnConstructedFn(OnConstructed)
 
 	inst:ListenForEvent("onbuilt", onbuilt)
 

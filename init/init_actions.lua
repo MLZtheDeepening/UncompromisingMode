@@ -779,6 +779,29 @@ end)
 
 env.AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.UM_FORGE_GEM, "doshortaction"))
 
+--[[local UM_SCRAPPER = Action({ priority = 1, mount_valid = true })
+UM_SCRAPPER.id = "UM_SCRAPPER"
+UM_SCRAPPER.str = STRINGS.UI.UM_SCRAPPER
+UM_SCRAPPER.rmb = true
+UM_SCRAPPER.fn = function(act)
+    act.target.components.channelable:StartChanneling(act.doer)
+end
+
+env.AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.UM_SCRAPPER, "doshortaction"))
+
+env.AddAction(UM_SCRAPPER)
+
+env.AddComponentAction("SCENE", "um_scrapper", function(inst, doer, actions, right)
+    if right and (inst.replica.container ~= nil and
+            inst.replica.container:IsFull() and
+            inst.replica.container:IsOpenedBy(doer)
+        ) then
+        table.insert(actions, ACTIONS.UM_SCRAPPER)
+    end
+end)
+
+env.AddStategraphActionHandler("wilson", ActionHandler(ACTIONS.UM_SCRAPPER, "doshortaction"))]]
+
 local function CanMakeBlueprintWithTarget(builder, target)
     return builder and builder:CanLearn(target.prefab) and builder:KnowsRecipe(target.prefab) and PrefabExists(target.prefab .. "_blueprint")
 end

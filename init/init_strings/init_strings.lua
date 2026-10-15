@@ -236,7 +236,7 @@ STRINGS.ACTIONS.RUMMAGE.GEM_FORGE = "Use"
 STRINGS.ACTIONS.RUMMAGE.CLOSE_GEM_FORGE = "Stop using"
 STRINGS.ACTIONS.STORE.GEM_FORGE = "Forge"
 STRINGS.ACTIONS.HEALCHESS = "Heal"
-
+STRINGS.ACTIONS.UM_ATOMIZE = "Atomize"
 STRINGS.ACTIONS.UM_ACTIVATABLE_ITEM = {
     GENERIC = "Use",
     PONDER = "Ponder",
@@ -272,6 +272,7 @@ STRINGS.ACTIONS.UM_CALL_BEEF = "Call Beefalo"
 STRINGS.ACTIONS.UM_COOL_MAGMA_STAFF = "Solidify"
 
 STRINGS.UI.APPLY_GEM = "Forge!"
+STRINGS.UI.UM_SCRAPPER = "Scrap"
 STRINGS.UI.HUD.UM_VETSKULL_PREFIX = "Veteran's Curse:\n"
 STRINGS.UI.HUD.UM_VETSKULL_GENERIC = " - Receive more damage when attacked.\n - Sanity drains faster.\n - Health and Sanity from foods is applied *slowly* over time."
 STRINGS.UI.HUD.UM_VETSKULL = {
@@ -290,8 +291,8 @@ STRINGS.UI.HUD.UM_VETSKULL = {
     WARLY = STRINGS.UI.HUD.UM_VETSKULL_GENERIC,        --WIP
     WORTOX = STRINGS.UI.HUD.UM_VETSKULL_GENERIC,       --WIP
     WORMWOOD = " - Health from healing items is applied *slowly* over time.\n - Getting attacked and fire damage interrupt the healing.",
-    WURT = STRINGS.UI.HUD.UM_VETSKULL_GENERIC,         --Wurt to Womp transition, real. Soon.
-    WALTER = " - Damage taken also applies a maximum Sanity penalty.\n - The penalty heals itself after a while without getting hurt.",
+    WURT = STRINGS.UI.HUD.UM_VETSKULL_GENERIC,         --WIP
+    WALTER = " - Damage taken also applies a maximum Sanity penalty.\n - The penalty heals after a while without getting hurt or by spending time with Woby.",
     WANDA = " - Getting attacked by shadows cause you to age to certain death.",
     WINKY = " - Lose 5 inventory slots.",
     WATHOM = " - When above 50% Sanity, become enlighted.",

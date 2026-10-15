@@ -198,11 +198,34 @@ modparams.um_scrapper =
         animbuild = "ui_chest_2x2",
         pos = Vector3(200, 0, 0),
         side_align_tip = 120,
+        --[[buttoninfo =
+        {
+            text = STRINGS.UI.UM_SCRAPPER,
+            position = Vector3(0, -165, 0),
+        }]]
     },
     --itemtestfn = CheckEquipItem,
     acceptsstacks = false,
     type = "cooker",
 }
+
+--[[function modparams.params.um_scrapper.widget.buttoninfo.fn(inst, doer)
+    if inst.components.container ~= nil then
+        BufferedAction(doer, inst, ACTIONS.UM_SCRAPPER):Do()
+    elseif inst.replica.container ~= nil then
+        SendRPCToServer(RPC.DoWidgetButtonAction, ACTIONS.UM_SCRAPPER.code, inst, ACTIONS.UM_SCRAPPER.mod_name)
+    end
+end
+
+function modparams.params.um_scrapper.widget.buttoninfo.validfn(inst)
+    return inst.replica.container ~= nil and inst.replica.container:IsFull()
+end]]
+
+--[[function containers.params.um_gemologyforge.widget.buttoninfo.validfn(inst)
+    local tool = inst.replica.container:GetItemInSlot(1)
+    local gem = inst.replica.container:GetItemInSlot(2)
+    return inst.replica.container ~= nil and inst.replica.container:IsFull() and tool ~= nil and gem ~= nil
+end]]
 
 modparams.puffvest =
 {
@@ -803,7 +826,7 @@ containers.params.um_cookpot_wagstaff =
         side_align_tip = 100,
         buttoninfo =
         {
-            text = "Atomize",
+            text = STRINGS.ACTIONS.UM_ATOMIZE,
             position = Vector3(0, -165, 0),
         }
     },

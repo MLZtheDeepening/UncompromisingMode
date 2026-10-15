@@ -6,6 +6,13 @@ require("recipe")
 
 local TECH = GLOBAL.TECH
 local Ingredient = GLOBAL.Ingredient
+local CONSTRUCTION_PLANS = GLOBAL.CONSTRUCTION_PLANS
+
+CONSTRUCTION_PLANS["um_scrapper"] = {
+    Ingredient("greenmooneye", 1),
+    Ingredient("moonrocknugget", 3),
+    Ingredient("moonglass", 8)
+}
 
 -- List of Vanilla Recipe Filters
 -- "FAVORITES", "CRAFTING_STATION", "SPECIAL_EVENT", "MODS", "CHARACTER", "TOOLS", "LIGHT",
