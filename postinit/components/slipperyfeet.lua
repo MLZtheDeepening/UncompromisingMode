@@ -2,7 +2,6 @@ local env = env
 GLOBAL.setfenv(1, GLOBAL)
 
 env.AddComponentPostInit("slipperyfeet", function(self)
-
     local function OnOceanIce(inst, on_floodwater)
         local self = inst.components.slipperyfeet
         if on_floodwater then
@@ -32,8 +31,8 @@ env.AddComponentPostInit("slipperyfeet", function(self)
     self.inittask2 = self.inst:DoTaskInTime(0, OnInit)
 
     local _OnLoad = self.OnLoad
-    function self:OnLoad()
-        _OnLoad(self)
+    function self:OnLoad(...)
+        _OnLoad(self, ...)
         if self.inittask2 then
             self.inittask2:Cancel()
             OnInit(self.inst)
@@ -41,8 +40,8 @@ env.AddComponentPostInit("slipperyfeet", function(self)
     end
 
     local _OnRemoveFromEntity = self.OnRemoveFromEntity
-    function self:OnRemoveFromEntity()
-        _OnRemoveFromEntity(self)
+    function self:OnRemoveFromEntity(...)
+        _OnRemoveFromEntity(self, ...)
         if self.inittask2 then
             self.inittask2:Cancel()
             self.inittask2 = nil
@@ -53,9 +52,8 @@ env.AddComponentPostInit("slipperyfeet", function(self)
     end
 
     local _OnUpdate = self.OnUpdate
-
-    function self:OnUpdate(dt)
-        _OnUpdate(self, dt)
+    function self:OnUpdate(dt, ...)
+        _OnUpdate(self, dt,  ...)
         if self._updating["checkice"] then
             --if we're on ocean tile but also visual ground, then assume it's ice overhang
             local x, y, z = self.inst.Transform:GetWorldPosition()
@@ -71,5 +69,4 @@ env.AddComponentPostInit("slipperyfeet", function(self)
             self:DoDecay(dt)
         end
     end
-    
 end)
