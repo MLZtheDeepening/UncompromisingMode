@@ -4,7 +4,7 @@ local function GetDuration(duration)
 end
 
 local function IsWarlyBuffed(target)
-    return target:HasTag("warlybuffed") and (target:HasTag("vetcurse") and 1.8 or 2) or target:HasTag("vetcurse_wormwood") and .6 or target:HasTag("vetcurse") and .8 or 1
+    return target:HasTag("warlybuffed") and (target:HasTag("vetcurse") and 1.8 or 2) or target:HasAllTags("vetcurse", "plantkin") and .6 or target:HasTag("vetcurse") and .8 or 1
 end
 
 local function HealthOnTick(inst, target, data)

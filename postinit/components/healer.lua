@@ -13,7 +13,7 @@ env.AddComponentPostInit("healer", function(self)
 				end
 			end
 		end
-		if self.health and target:HasTag("vetcurse_wormwood") then
+		if self.health and target:HasAllTags("vetcurse", "plantkin") then
 			if self.health > 3 and not self.inst:HasAnyTag("ignores_foodregen", "ignores_healthregen") then
         		target.components.debuffable:AddDebuff("healthregenbuff_vetcurse_"..self.inst.prefab, "healthregenbuff_vetcurse", {duration = (self.health * 0.1)})
 
