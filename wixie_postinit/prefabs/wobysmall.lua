@@ -178,6 +178,26 @@ env.AddPrefabPostInit("wobysmall", function(inst)
         inst.components.inspectable.getstatus = inspect_woby
     end
 
+    local _OnPet = inst.components.crittertraits.onpetfn
+    local function OnPet(inst, petter, ...)
+        if petter and petter:HasTag("vetcurse") and petter.components.sanity:GetPenaltyPercent() ~= 0 and not inst.components.timer:TimerExists("um_wobypetsanity_cooldown") then
+            inst.components.timer:StartTimer("um_wobypetsanity_cooldown", TUNING.TOTAL_DAY_TIME)
+            local takethepenaltyaway = petter.components.sanity:GetPenaltyPercent() - .05
+            petter.components.sanity:AddSanityPenalty(petter, math.max(takethepenaltyaway, 0))
+        end
+        _OnPet(inst, petter, ...)
+    end
+    
+    local function OnUMPetTimerDone(inst)
+        if inst.sg.currentstate.name ~= "transform" then
+            inst.sg:GoToState(inst.sg:HasState("woby_does_a_flip") and "woby_does_a_flip")
+        end
+    end
+
+    inst.components.crittertraits:SetOnPetFn(OnPet)
+    inst:ListenForEvent("timerdone", OnUMPetTimerDone)
+    
+
     inst:ListenForEvent("woby_dropped_item", function(inst, data)
         if inst._playerlink ~= nil and inst._playerlink.components.health ~= nil and not inst._playerlink.components.health:IsDead() then
             if data.dropped_item == nil or data.dropped_item ~= nil and not data.dropped_item:HasTag("heavy") then

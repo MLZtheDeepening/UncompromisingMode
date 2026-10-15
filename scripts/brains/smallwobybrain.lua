@@ -29,7 +29,7 @@ local function GetOwner(inst)
     return inst.components.follower and inst.components.follower:GetLeader()
 end
 
-local function KeepFaceOwnerFn(inst, target)
+local function KeepFaceTargetFn(inst, target)
     return GetOwner(inst) == target
 end
 
