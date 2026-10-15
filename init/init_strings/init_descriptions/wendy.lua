@@ -593,12 +593,6 @@ DESCRIBE.UM_BOATBOTTLE = {
     EMPTY = "Removed from where it once sailed, for now."
 }
 
-ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {"You won't be able to slip out of death's clutches.",
-    "If I don't catch you, it's only a matter of time before death will.",
-    --"Maybe Abigail could give it a try.",
-    "Flying will only get you so far.",
-    "This would be better if I wait for it to land."}
-	
 DESCRIBE.WATHOM_CORPSE = "Rise again, so you may feel the tinge of death once more."
 
 DESCRIBE.WATHGRITHR_SHIELD_DREADSTONE = "Rigid and cold, like this world."

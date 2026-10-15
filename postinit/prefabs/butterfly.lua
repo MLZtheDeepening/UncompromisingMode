@@ -1,98 +1,7 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 
-if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" then
-    local function Slippy(inst, target, distancemod) -- Reduced from wixie_shove to something only applicable to the butterfly
-        local x, y, z = inst.Transform:GetWorldPosition()
-        for i = 1, 50 do
-            inst:DoTaskInTime((i - 1) / 50, function(inst)
-                local tx, ty, tz = target.Transform:GetWorldPosition()
-                if tx then
-                    local rad = math.rad(inst:GetAngleToPoint(tx, ty, tz))
-                    local velx = math.cos(rad)
-                    local velz = -math.sin(rad)
-                    local distancemultiplier = distancemod and 1 + (distancemod / 10) or 1
-                    local dx, dy, dz = tx + ((((3 / (i + 2)) * velx))) / distancemultiplier, ty, tz + ((((3 / (i + 2)) * velz))) / distancemultiplier
-                    target.Transform:SetPosition(dx, dy, dz)
-                end
-            end)
-        end
-    end
-
-    local sittingstates = {"pollinate", "land_idle", "thraw", "frozen"}
-    local allowedstimuli = {"soul"}
-    local disallowedattackertags = {"sporecloud", "FX"}
-    local function SittingStill(statename)
-        return statename and table.contains(sittingstates, statename)
-    end
-
-    local function ByPassWeapon(weapon)
-        return weapon and (weapon.prefab == "bugzapper" or weapon:HasTag("blowdart")
-            or (weapon.components.weapon and weapon.components.weapon.projectile
-            or weapon.components.projectile or weapon.components.complexprojectile and not weapon.components.complexprojectile.ismeleeweapon))
-    end
-
-    local function ByStimuli(stimuli)
-        return stimuli and table.contains(allowedstimuli, stimuli)
-    end
-
-    local function UMSlipAway(inst, data, doslip)
-        local attacker = data.attacker
-        local statename = inst.sg and inst.sg.currentstate.name
-        local shouldslip = false
-        if attacker and attacker:IsValid() and not attacker:HasAnyTag(disallowedattackertags) and not ByStimuli(data.stimuli)
-            and not SittingStill(statename) and not ByPassWeapon(data.weapon or attacker) then -- Can only attack when criteria is met.
-            if doslip then
-                inst.SoundEmitter:PlaySound("dontstarve/movement/slip_fall_whoop")
-                Slippy(attacker, inst)
-                if attacker:HasTag("player") then UMCommonFns.Say(attacker, GetString(attacker, "ANNOUNCE_BUTTERFLY_SLIP")) end
-            end
-            shouldslip = true
-        end
-        return shouldslip
-    end
-
-    local function BozoUpdate(inst)
-        local x,y,z = inst.Transform:GetWorldPosition()
-        local ents = TheSim:FindEntities(x, y, z, 8, {"_health"}, {"structure", "smallcreature"})
-        local mindist = 12
-        if ents then
-            for i,v in ipairs(ents) do
-                if inst:GetDistanceSqToInst(v) ^ 0.5 < mindist then
-                    mindist = inst:GetDistanceSqToInst(v) ^ 0.5
-                end
-            end
-        end
-        if mindist < 8 then
-            local statename = inst.sg.currentstate.name
-            if statename == "pollinate" or statename == "land_idle" and not inst.takeoff then
-                inst.takeoff = inst:DoTaskInTime(1.2, function(inst)
-                    local statename = inst.sg.currentstate.name
-                    if statename == "pollinate" or statename == "land_idle" and TheWorld.state.isday then
-                        inst.sg:GoToState("takeoff")
-                    end
-                    inst.takeoff = nil
-                end)
-            elseif inst:GetBufferedAction() and TheWorld.state.isday then
-                inst:ClearBufferedAction()
-                if inst.components.locomotor then
-                    inst.components.locomotor:Clear()
-                end
-            end
-        end
-    end
-
-    local function CheckForNearbyBozos(inst)
-        local x,y,z = inst.Transform:GetWorldPosition()
-        local ents = TheSim:FindEntities(x, y, z, 12, {"_health"}, {"structure", "smallcreature"})
-        if #ents > 0 and not inst.active_monitoring then
-            inst.active_monitoring = inst:DoPeriodicTask(FRAMES, BozoUpdate)
-        elseif inst.active_monitoring then
-            inst.active_monitoring:Cancel()
-            inst.active_monitoring = nil
-        end
-    end
-
+if TUNING.DSTU.BUTTERFLYWINGS_NERF == "petals" then
     local function MakeButtery(inst)
         SpawnPrefab("um_buttery_fly").Transform:SetPosition(inst.Transform:GetWorldPosition())
         inst:Remove()
@@ -101,35 +10,43 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" then
     local function RollForButtery(inst)
         if inst.buttery and inst.buttery >= 98 then
             MakeButtery(inst)
-        else
-            inst.components.lootdropper:SetLoot({"butterflywings"})
         end
     end
 
     local butterflies = {"butterfly", "um_buttery_fly", "moonbutterfly"}
     for i,v in ipairs(butterflies) do
         env.AddPrefabPostInit(v, function(inst)
-            inst:AddTag("um_slippery")
-
             if not TheWorld.ismastersim then return end
 
-            inst.UMSlipAway = UMSlipAway
+            inst.um_petaldrop = v == "moonbutterfly" and "moon_tree_blossom" or "petals"
 
-            inst:DoPeriodicTask(2, CheckForNearbyBozos)
+            local lootdropper = inst.components.lootdropper
+            if lootdropper then
+                local _LootSetupFn = lootdropper.lootsetupfn
+                lootdropper:SetLootSetupFn(function(_lootdropper, ...)
+                    local inst = _lootdropper.inst
+                    if not inst.um_wasmurdered then
+                        _lootdropper:SetChanceLootTable(nil) -- Moon Moth sets a chance loot table that needs to be cleared here.
+                        _lootdropper:SetLoot({inst.um_petaldrop or "petals"})
+                    end
+                    return _LootSetupFn and _LootSetupFn(_lootdropper, ...)
+                end)
+            end
 
             if v == "butterfly" then
-                inst.OnSave = function(inst,data)
-                    if inst.buttery then data.buttery = inst.buttery end
+                if lootdropper then lootdropper:SetLoot({"butterflywings"}) end
+
+                local _OnSave = inst.OnSave
+                inst.OnSave = function(_inst, data, ...)
+                    if _inst.buttery then data.buttery = _inst.buttery end
+                    return _OnSave and _OnSave(_inst, data, ...)
                 end
-                inst.OnLoad = function(inst,data)
-                    if data.buttery then inst.buttery = data.buttery end
-                    RollForButtery(inst)
-                    return data
+                local _OnLoad = inst.OnLoad
+                inst.OnLoad = function(_inst, data, ...)
+                    _inst.buttery = data and data.buttery or math.random(1, 100)
+                    RollForButtery(_inst)
+                    return _OnLoad and _OnLoad(_inst, data, ...)
                 end
-                inst:DoTaskInTime(0, function(inst)
-                    if not inst.buttery then inst.buttery = math.random(1, 100) end
-                    RollForButtery(inst)
-                end)
             end
         end)
     end
@@ -157,8 +74,6 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" then
     end
 
     local FLOWER_TAGS = {"flower"}
-    local BUTTERFLY_TAGS = {"butterfly"}
-
     local function GetSpawnPoint(player)
         local rad = 25
         local mindistance = 36

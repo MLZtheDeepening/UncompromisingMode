@@ -10,7 +10,6 @@ env.AddComponentPostInit("weapon", function(self)
 
     local _OnAttack = self.OnAttack
     function self:OnAttack(attacker, target, projectile, ...)
-        if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and target and target.UMSlipAway and target:UMSlipAway({attacker = attacker, weapon = self.inst}) then return end
         UMGemologyFns.GetEnchantsAndDoFn(self.inst, "onattack", function(enchant, tier, gemfn, _self, _attacker, _target)
             gemfn(_self, _attacker, _target, tier)
         end, attacker, target)

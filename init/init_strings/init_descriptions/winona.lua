@@ -611,12 +611,6 @@ DESCRIBE.UM_BOATBOTTLE = {
     EMPTY = "Should be safe enough."
 }
 
-ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {"I'll try again when it's on break.",
-    "Just gimme a sec. I almost got this down.",
-    "I betcha I could build something to get this done faster.",
-    "The dainty thing should be taking a break any second now.",
-    "Might be easier to hit when it's landed."}
-
 DESCRIBE.WATHOM_CORPSE = "He's still got fight left in 'em! Up and at'em, lets go!"
 
 DESCRIBE.WATHGRITHR_SHIELD_DREADSTONE = "An impenetrable shield!"
