@@ -124,7 +124,7 @@ local function OnExplode(inst, target)
         local combattarget = target.components.combat.target or inst
         target.components.combat:GetAttacked(inst, TUNING.TRAP_TEETH_DAMAGE * (inst.traptype == "gold" and 1.5 or 1) * (inst.components.stackable and inst.components.stackable:StackSize() or 1))
         if combattarget and combattarget:IsValid() and target:IsValid() and target.components.combat and not (target.components.health and target.components.health:IsDead()) then
-            target.components.combat:SuggestTarget(combattarget)
+            target.components.combat:SetTarget(combattarget)
         end
 
         inst.latchedtarget = target
