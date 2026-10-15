@@ -121,9 +121,9 @@ local function OnExplode(inst, target)
             inst.deathtask = nil
         end
 
-        local combattarget = target.components.combat.target or inst
+        local combattarget = target.components.combat.target
         target.components.combat:GetAttacked(inst, TUNING.TRAP_TEETH_DAMAGE * (inst.traptype == "gold" and 1.5 or 1) * (inst.components.stackable and inst.components.stackable:StackSize() or 1))
-        if combattarget and combattarget:IsValid() and target:IsValid() and target.components.combat and not (target.components.health and target.components.health:IsDead()) then
+        if combattarget and combattarget ~= inst and combattarget:IsValid() and target:IsValid() and target.components.combat and not (target.components.health and target.components.health:IsDead()) then
             target.components.combat:SetTarget(combattarget)
         end
 
