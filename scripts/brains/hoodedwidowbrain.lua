@@ -139,7 +139,6 @@ local function NearPrey(inst) --Are we near the webbed creature we're interested
     end
 end
 
-
 local function DefinePrey(inst)
     --[[local player = FindEntity(inst.components.homeseeker.home, math.sqrt(TUNING.DRAGONFLY_RESET_DIST * 7), nil, {"player"}, {"playerghost"}) --Try to find additional players near our prey
     if player then --There's another player close to our prey, let's get them

@@ -1,21 +1,25 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------
+SetSharedLootTable('hound_cold',
+{
+    {'monstermeat', 1.0},
+    {'houndstooth', 1.0},
+    {'bluegem',      0.3},
+})
+
 local function RechargeIceSpikeAttack(inst)
-	inst.icespikeready = true
-	inst.components.combat:SetRange(6,3)
+	inst.um_specialattackready = true
+	inst.components.combat:SetRange(6, 3)
 		
 	-- Original Range variables from combat
 	-- attackrange = 3
     -- hitrange = 3
 end
 
-local function IceSpike(inst,target) --AXE Code from atoba's glacial hound, but tuned.
+local function IceSpike(inst, target) --AXE Code from atoba's glacial hound, but tuned.
     local x, y, z = inst.Transform:GetWorldPosition()
     local numspikes = inst:HasTag("ice_shielded") and 12 or 6 --AXE Leaving this part of the code in, for when they do obtain an ice shield as well.
-    if not target then -- Last-chance regrab the target.
-	    target = inst.components.combat and inst.components.combat.target and inst.components.combat.target
-    end
 	if target then --AXE if no target, then just fakeout the attack.
         local target_pos = target:GetPosition()
 		local angle = inst:GetAngleToPoint(target_pos)
@@ -92,15 +96,9 @@ env.AddPrefabPostInit("icehound", function(inst)
     inst:AddComponent("timer")
     inst:ListenForEvent("timerdone",RechargeIceSpikeAttack)
     
-    if not inst.icespikeready then --AXE If spawned, just give a small gap till it's time to spike again.
-        inst:DoTaskInTime(math.random(4,8),RechargeIceSpikeAttack)
+    if not inst.um_specialattackready then --AXE If spawned, just give a small gap till it's time to spike again.
+        inst:DoTaskInTime(math.random(4, 8), RechargeIceSpikeAttack)
     end
     inst.IceSpike = IceSpike
     inst.SnowFX = SnowFX
-    SetSharedLootTable('hound_cold',
-    {
-        {'monstermeat', 1.0},
-        {'houndstooth', 1.0},
-        {'bluegem',      0.3},
-    })
 end)

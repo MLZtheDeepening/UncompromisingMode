@@ -1,8 +1,7 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
-
-------------------------------------------------------------------
-SetSharedLootTable( 'um_nurse_spider',
+-----------------------------------------------------------------
+SetSharedLootTable('um_nurse_spider',
 {
     {'spidergland',  1.00},
 })

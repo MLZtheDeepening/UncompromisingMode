@@ -1,7 +1,6 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------
-
 SetSharedLootTable('slurp_up',
 {
     {'lightbulb',    1.0},

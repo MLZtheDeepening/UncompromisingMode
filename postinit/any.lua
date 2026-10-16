@@ -153,11 +153,9 @@ end
 
 env.AddPrefabPostInitAny(function(inst)
     if not TheWorld.ismastersim then return end
-    if inst ~= nil and inst:IsValid() and inst:HasTag("epic") then
-        if inst.components.teleportedoverride == nil then
-            inst:AddComponent("teleportedoverride")
-            inst.components.teleportedoverride:SetDestPositionFn(TeleportOverrideFn)
-        end
+    if inst:HasTag("epic") and not inst.components.teleportedoverride then
+        local teleportedoverride = inst:AddComponent("teleportedoverride")
+        teleportedoverride:SetDestPositionFn(TeleportOverrideFn)
     end
 end)
 
@@ -217,8 +215,7 @@ local function AdjustVisibility(inst, distance, angle)
         inst.um_visibilityclient = -(seebehinddistance - distance) + inst.um_visibilityclient
         if inst.um_visibilityclient > 1 then inst.um_visibilityclient = 1 end
     end
-   
-   
+
     if inst.um_visibilityclient <= 0 then
         FullHide(inst)
     else
@@ -257,7 +254,6 @@ local function AdjustVisibility(inst, distance, angle)
 end
 
 local function UpdateVisibility(inst)
-   
     --if ThePlayer and ThePlayer:HasTag("um_darkwood") then
     local distance = math.sqrt(ThePlayer:GetDistanceSqToInst(inst))
     local x, y, z = inst.Transform:GetWorldPosition()
@@ -276,8 +272,7 @@ local function UpdateVisibility(inst)
     local angle1 = -math.atan2((z2 - z1), (x2 - x1))
     local angle2 = -math.atan2(z - z1, x - x1)
     local angle = math.abs(angle1 - angle2)
-   
-   
+
     if distance > 20 then
         FullHide(inst)
     else
@@ -308,16 +303,14 @@ env.AddPrefabPostInitAny(function(inst)
     end
 end)
 
-local _AddPlatformFollower = EntityScript.AddPlatformFollower
 --local _RemovePlatformFollower = EntityScript.RemovePlatformFollower
-
-function EntityScript:AddPlatformFollower(child)
-    if child ~= nil then
-        _AddPlatformFollower(self, child)
-    end
-    if child ~= nil and child:HasTag("structure") then --probably a bad assumption, but i'm assuming structures cant/wont leave the boat - yell at me if this messes anything.
+local _AddPlatformFollower = EntityScript.AddPlatformFollower
+function EntityScript:AddPlatformFollower(child, ...)
+    local ret = _AddPlatformFollower(self, child, ...)
+    if child and child:HasTag("structure") then --probably a bad assumption, but i'm assuming structures cant/wont leave the boat - yell at me if this messes anything.
         RemovePhysicsColliders(child)                  --altough removing the structure collision instead of the player's seems like a more reasonable idea.
     end
+    return ret
 end
 
 local _SpawnChild = EntityScript.SpawnChild
@@ -326,44 +319,18 @@ function EntityScript:SpawnChild(name, ...)
     return _SpawnChild(self, name, ...)
 end
 
-local _PushEvent = EntityScript.PushEvent
+--[[local _PushEvent = EntityScript.PushEvent
 function EntityScript:PushEvent(event, data, ...)
     if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and event == "onattackother" and data and data.target and data.target.UMSlipAway
         and data.target:UMSlipAway({attacker = self, weapon = data.weapon, stimuli = data.stimuli}) then return end
     return _PushEvent(self, event, data, ...)
-end
+end]]
 
 local UM_BLOCKED_STATES = {"wortox_teleport_reviver_selfuse"}
 local _GoToState = StateGraphInstance.GoToState
 function StateGraphInstance:GoToState(statename, ...)
     if self.inst.um_blockgotostate and table.contains(UM_BLOCKED_STATES, statename) then return end
     return _GoToState(self, statename, ...)
-end
-
-local hermitcrabtea_defs = require("prefabs/hermitcrabtea_defs")
-for _, data in ipairs(hermitcrabtea_defs.buffs) do
-    if data.name == "moon_tree_blossom" then
-        local _MoonBlossom_OnAttacked = UMUpvalueHacker.TryGetUpvalue(data.onattachedfn, "MoonBlossom_OnAttacked")
-        if _MoonBlossom_OnAttacked then
-            local SparkLunarOnShadow = UMUpvalueHacker.TryGetUpvalue(_MoonBlossom_OnAttacked, "SparkLunarOnShadow")
-            local function AttackShadow(inst, attacker)
-                if inst.components.combat:CanTarget(attacker) then
-                    if not (attacker.components.health and attacker.components.health:IsDead()) and attacker.sg:HasStateTag("attack") and attacker.sg:HasState("hit") then
-                        attacker.sg:GoToState("hit")
-                    end
-                    attacker.components.combat:GetAttacked(inst, TUNING.DSTU.HERMITCRAB_MOONTREEBLOSSOMTEA_SHADOWCREATURE_DAMAGE)
-                end
-            end
-            local function MoonBlossom_OnAttacked(inst, data)
-                local attacker, damage = data and data.attacker, data and data.original_damage
-                if attacker and attacker:IsValid() and attacker:HasTag("shadowsubmissive") then
-                    if SparkLunarOnShadow then SparkLunarOnShadow(inst, attacker) end
-                    AttackShadow(inst, attacker)
-                end
-            end
-            UMUpvalueHacker.SetUpvalue(data.onattachedfn, MoonBlossom_OnAttacked, "MoonBlossom_OnAttacked")
-        end
-    end
 end
 
 --[[local NO_UM_SPIRITBUFF_TAGS = {"companion", "abigail", "shadowminion"}

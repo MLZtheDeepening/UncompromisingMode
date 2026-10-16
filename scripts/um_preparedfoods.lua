@@ -116,12 +116,9 @@ local function BoomPieGo(inst, eater)
         puddle.playermade = true
         puddle.SoundEmitter:PlaySound("turnoftides/creatures/together/starfishtrap/trap")
 
-        local casualties = TheSim:FindEntities(x, y, z, 2, nil, pie_shouldnt_hit)
-        if #casualties > 0 then
-            for i, v in pairs(casualties) do
-                if v.components.combat and eater.components.combat:CanTarget(v) and not eater.components.combat:IsAlly(v) then
-                    v.components.combat:GetAttacked(eater, 68)
-                end
+        for i, v in pairs(TheSim:FindEntities(x, y, z, 2, nil, pie_shouldnt_hit)) do
+            if v.components.combat and eater.components.combat:CanTarget(v) and not eater.components.combat:IsAlly(v) then
+                v.components.combat:GetAttacked(eater, 68)
             end
         end
     end

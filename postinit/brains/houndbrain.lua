@@ -4,7 +4,7 @@ GLOBAL.setfenv(1, GLOBAL)
 local MAX_JUMP_ATTACK_RANGE = 9
 local function shouldjumpattack(inst)
     if inst.sg:HasStateTag("leapattack") then return true end
-    if inst.components.combat.target and inst.lightningshot then
+    if inst.components.combat.target and inst.um_specialattackready then
         local target = inst.components.combat.target
         if target then
             if target:IsValid() then

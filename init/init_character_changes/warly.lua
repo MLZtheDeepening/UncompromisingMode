@@ -2,6 +2,49 @@ local env = env
 GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------	
 
+local function oneat(inst, data)
+    local food = data.food
+    if food and food.components.edible then
+        local hungerbonus = food.components.edible:GetHunger() * 0.2
+        local sanitybonus = food.components.edible:GetSanity() * 0.2
+        local healthbonus = food.components.edible:GetHealth() * 0.2
+
+        if inst.components.hunger and hungerbonus > 0 then
+            inst.components.hunger:DoDelta(hungerbonus)
+        end
+
+        if not inst:HasTag("vetcurse") and not inst:HasTag("UM_foodregen") and inst.components.sanity and sanitybonus > 0 then
+            inst.components.sanity:DoDelta(sanitybonus)
+        end
+
+        if not inst:HasTag("vetcurse") and not inst:HasTag("UM_foodregen") and inst.components.health and healthbonus > 0 then
+            inst.components.health:DoDelta(healthbonus, true, food.prefab)
+        end
+    end
+end
+
+local function OnMurdered(inst, data)
+    if data.incinerated then return end
+    local victim = data.victim
+    if victim and victim:IsValid() and victim.um_wasmurdered and not inst.components.health:IsDead() then
+        local x, y, z = inst.Transform:GetWorldPosition()
+        if victim.components.lootdropper then
+            victim.causeofdeath = inst
+            local pos = Vector3(x, y, z)
+            for i = 1, data.stackmult do
+                local loots = victim.components.lootdropper:GenerateLoot()
+                local lootprefab = loots[#loots > 1 and math.random(#loots) or 1]
+                if lootprefab then
+                    local loot = SpawnPrefab(lootprefab)
+                    if loot then
+                        inst.components.inventory:GiveItem(loot, nil, pos)
+                    end
+                end
+            end
+        end
+    end
+end
+
 env.AddPrefabPostInit("warly", function(inst)
     if not TheWorld.ismastersim then return end
     --[[
@@ -47,38 +90,20 @@ if TUNING.DSTU.WARLY_BUTCHER then
 end]]
 
     if TUNING.DSTU.WARLY_CHANGES ~= 0 then
-        local function oneat(inst, data)
-            local food = data.food
-            if food and food.components.edible then
-                local hungerbonus = food.components.edible:GetHunger() * 0.2
-                local sanitybonus = food.components.edible:GetSanity() * 0.2
-                local healthbonus = food.components.edible:GetHealth() * 0.2
-
-                if inst.components.hunger and hungerbonus > 0 then
-                    inst.components.hunger:DoDelta(hungerbonus)
-                end
-
-                if not inst:HasTag("vetcurse") and not inst:HasTag("UM_foodregen") and inst.components.sanity and sanitybonus > 0 then
-                    inst.components.sanity:DoDelta(sanitybonus)
-                end
-
-                if not inst:HasTag("vetcurse") and not inst:HasTag("UM_foodregen") and inst.components.health and healthbonus > 0 then
-                    inst.components.health:DoDelta(healthbonus, true, food.prefab)
-                end
-            end
-        end
-
         inst:AddTag("warlybuffed")
 
-        if inst.components.eater ~= nil then
+        if inst.components.eater then
             inst:ListenForEvent("oneat", oneat)
             --inst.components.eater:SetOnEatFn(oneat)
             --inst.components.eater:SetAbsorptionModifiers(1.2, 1.2, 1.2)
         end
 
-        if inst.components.foodmemory ~= nil then
-            inst.components.foodmemory:SetDuration(TUNING.DSTU.WARLY_SAME_OLD_COOLDOWN)
-            inst.components.foodmemory:SetMultipliers(TUNING.DSTU.WARLY_SAME_OLD_MULTIPLIERS)
+        inst:ListenForEvent("murdered", OnMurdered)
+
+        local foodmemory = inst.components.foodmemory
+        if foodmemory then
+            foodmemory:SetDuration(TUNING.DSTU.WARLY_SAME_OLD_COOLDOWN)
+            foodmemory:SetMultipliers(TUNING.DSTU.WARLY_SAME_OLD_MULTIPLIERS)
         end
     end
 end)

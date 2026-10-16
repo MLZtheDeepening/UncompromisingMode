@@ -1,23 +1,22 @@
 require("worldsettingsutil")
 
-
 local function AreaAttack(inst)
-        local x, y, z = inst.Transform:GetWorldPosition()
-        local ents = TheSim:FindEntities(x, y, z, 3)
-        for i, v in ipairs(ents) do
-            if v ~= inst and v:IsValid() and not v:IsInLimbo() and not v:HasTag("moonglass") then
-                if v.components.workable ~= nil and v.components.workable:CanBeWorked() then
-                    v.components.workable:WorkedBy(inst, 3)
-                end
-                --Recheck valid after work
-                if v:IsValid() and not v:IsInLimbo() then
-                    if v.components.combat ~= nil and not (v.components.health ~= nil and v.components.health:IsDead()) and not v:HasTag("moonglasscreature") then
-                        local dmg = 50
-                        v.components.combat:GetAttacked(inst, dmg, nil)
-                    end
+    local x, y, z = inst.Transform:GetWorldPosition()
+    local ents = TheSim:FindEntities(x, y, z, 3)
+    for i, v in ipairs(ents) do
+        if v ~= inst and v:IsValid() and not v:IsInLimbo() and not v:HasTag("moonglass") then
+            if v.components.workable ~= nil and v.components.workable:CanBeWorked() then
+                v.components.workable:WorkedBy(inst, 3)
+            end
+            --Recheck valid after work
+            if v:IsValid() and not v:IsInLimbo() then
+                if v.components.combat ~= nil and not (v.components.health ~= nil and v.components.health:IsDead()) and not v:HasTag("moonglasscreature") then
+                    local dmg = 50
+                    v.components.combat:GetAttacked(inst, dmg, nil)
                 end
             end
         end
+    end
 end
 
 local function explode(inst)
@@ -37,7 +36,6 @@ local function explode(inst)
         inst:Remove()
     end)
 end
-
 
 local function on_save(inst, data)
     data.defused = inst.defused or nil
@@ -63,15 +61,15 @@ local function getstatus(inst)
 end
 
 local function spawnin(inst,time)
-inst:Hide()
-inst:DoTaskInTime(time,function(inst)
-	AreaAttack(inst)
-	inst:Show()
-    inst.AnimState:PlayAnimation("spawn")
-    inst.AnimState:PushAnimation("idle1",true)
-	
-	inst.components.timer:StartTimer("defusetime", 0.14)
-end)
+    inst:Hide()
+    inst:DoTaskInTime(time,function(inst)
+        AreaAttack(inst)
+        inst:Show()
+        inst.AnimState:PlayAnimation("spawn")
+        inst.AnimState:PushAnimation("idle1",true)
+        
+        inst.components.timer:StartTimer("defusetime", 0.14)
+    end)
 end
 
 local function spawnlong(inst,time)
@@ -106,7 +104,6 @@ local function fn(pondtype)
     inst.Light:Enable(true)
 
     inst:AddTag("moonglass")
-
 
     inst.entity:SetPristine()
 
@@ -147,12 +144,13 @@ local function fn(pondtype)
         end
     end)
 
-
     inst.OnSave = on_save
     inst.OnLoad = on_load
     inst.spawnin = spawnin
 	inst.spawnlong = spawnlong
+
 	inst:DoTaskInTime(0.1, function(inst) if inst.caster == nil then inst:Remove() end end)
+
     return inst
 end
 

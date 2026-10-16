@@ -569,8 +569,7 @@ local function SpikeWaves(inst, target, attacker, angle)
                 fx2.Transform:SetScale(.5, .5, .5)
             end
             inst:DoTaskInTime(.6, function()
-                local ents = TheSim:FindEntities(dx, dy, dz, 1.5, {"_health", "_combat"}, {"FX", "NOCLICK", "INLIMBO", "notarget", "player", "playerghost", "companion"})
-                for k, v in ipairs(ents) do
+                for k, v in ipairs(TheSim:FindEntities(dx, dy, dz, 1.5, {"_health", "_combat"}, {"FX", "NOCLICK", "INLIMBO", "notarget", "player", "playerghost", "companion"})) do
                     if v ~= inst and attacker:IsValid() and attacker.components.combat and attacker.components.combat:CanTarget(v) and not attacker.components.combat:IsAlly(v) then
                         v.components.combat:GetAttacked(attacker, 0, nil, nil, {planar = 8.75})
                     end

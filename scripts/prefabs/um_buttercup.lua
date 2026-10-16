@@ -57,7 +57,7 @@ local function onpickedfn(inst, picker)
         end
     end
 
-    TheWorld:PushEvent("plantkilled", { doer = picker, pos = pos }) --this event is pushed in other places too
+    TheWorld:PushEvent("plantkilled", {doer = picker, pos = pos})
 end
 
 local function GetStatus(inst)
@@ -147,7 +147,7 @@ local function fn()
 
     local pickable = inst:AddComponent("pickable")
     pickable.picksound = "dontstarve/wilson/pickup_plants"
-    pickable:SetUp("petals", 10)
+    pickable:SetUp("petals", 10, 2)
     pickable.onpickedfn = onpickedfn
     pickable.remove_when_picked = true
     pickable.quickpick = true

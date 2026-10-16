@@ -111,8 +111,7 @@ env.AddStategraphPostInit("wilson", function(inst)
     local NO_SHOVE_TAGS = {"stageusher", "toadstool", "rooted"}
     local function CheckShield(inst)
         local x, y, z = inst.Transform:GetWorldPosition()
-        local ents = TheSim:FindEntities(x, y, z, 3.5, SLEEPREPEL_MUST_TAGS, SHIELD_CANT_TAGS)
-        for i, v in ipairs(ents) do
+        for i, v in ipairs(TheSim:FindEntities(x, y, z, 3.5, SLEEPREPEL_MUST_TAGS, SHIELD_CANT_TAGS)) do
             if inst.components.combat:CanTarget(v) and not inst.components.combat:IsAlly(v) then
                 v:AddTag("wixieshoved")
                 SpawnPrefab("round_puff_fx_sm").Transform:SetPosition(v.Transform:GetWorldPosition())
@@ -166,8 +165,7 @@ env.AddStategraphPostInit("wilson", function(inst)
 
     local function CheckBowling(inst)
         local x, y, z = inst.Transform:GetWorldPosition()
-        local ents = TheSim:FindEntities(x, y, z, 3.5, SLEEPREPEL_MUST_TAGS, SLEEPREPEL_CANT_TAGS)
-        for i, v in ipairs(ents) do
+        for i, v in ipairs(TheSim:FindEntities(x, y, z, 3.5, SLEEPREPEL_MUST_TAGS, SLEEPREPEL_CANT_TAGS)) do
             if inst.components.combat:CanTarget(v) and not inst.components.combat:IsAlly(v) then
                 v:AddTag("wixieshoved")
                 SpawnPrefab("round_puff_fx_sm").Transform:SetPosition(v.Transform:GetWorldPosition())

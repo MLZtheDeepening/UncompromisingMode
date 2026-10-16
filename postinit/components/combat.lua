@@ -10,12 +10,12 @@ end
 local function GetAttackedPostInit(self, fn)
 	local _GetAttackedOrInternal = self[fn]
 	self[fn] = function(self, attacker, damage, weapon, stimuli, spdamage, ...)
-        if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and self.inst.UMSlipAway and self.inst:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}, true) then
+        --[[if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and from_doattack and self.inst.UMSlipAway and self.inst:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}, true) then
             if attacker and weapon and weapon:IsValid() then
                 attacker:PushEvent("um_attacker_attacked_pst", {weapon = weapon})
             end
             return true
-        end
+        end]]
 
         if self.inst:HasTag("take_extra_spdamage") and attacker and not attacker:HasTag("player") and attacker.components.health and attacker.components.combat then
             --type check to not crash mods that pass spdamage as something other than actual spdamage.
@@ -103,11 +103,7 @@ local function GetAttackedPostInit(self, fn)
         if TUNING.DSTU.BEEFALO_NERF and damageredirecttarget and damageredirecttarget.components.rideable then
             local redirect_combat = damageredirecttarget.components.combat
             if redirect_combat then
-                if fn == "GetAttacked_Internal" then
-                    redirect_combat:GetAttacked_Internal(attacker, damage, weapon, stimuli, spdamage, ...)
-                else
-                    redirect_combat:GetAttacked(attacker, damage, weapon, stimuli, spdamage, ...)
-                end
+                redirect_combat[fn](redirect_combat, attacker, damage, weapon, stimuli, spdamage, ...)
                 damage, stimuli = damage / 2, "beefalo_half_damage" -- added new stimuli to prevent Stackoverflow
             end
         end
@@ -172,6 +168,27 @@ env.AddComponentPostInit("combat", function(self)
     local AREA_EXCLUDE_TAGS = {"INLIMBO", "notarget", "noattack", "flight", "invisible"}
     local _DoAttack = self.DoAttack
     function self:DoAttack(targ, weapon, projectile, stimuli, instancemult, instrangeoverride, instpos, ...)
+        --[[local sliptarget = TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and (targ or self.target)
+        if sliptarget and sliptarget.UMSlipAway then
+            if instrangeoverride then self.temprange = instrangeoverride end
+            if instpos then self.temppos = instpos end
+            if weapon == nil then weapon = self:GetWeapon() end
+            if stimuli == nil then
+                local weapon_cmp = weapon and weapon.components.weapon
+                if weapon_cmp then
+                    if weapon_cmp.overridestimulifn then
+                        stimuli = weapon_cmp.overridestimulifn(weapon, self.inst, targ)
+                    end
+                    if stimuli == nil and weapon_cmp.stimuli == "electric" then
+                        stimuli = "electric"
+                    end
+                end
+                if stimuli == nil and self.inst.components.electricattacks then
+                    stimuli = "electric"
+                end
+            end
+            if self:CanHitTarget(sliptarget, weapon) and sliptarget:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}, true) then return end
+        end]]
         if self.um_areahit and not self.um_ignoreareahit then
             self.ignorehitrange = true
             self.um_ignoreareahit = true

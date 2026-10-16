@@ -97,22 +97,21 @@ local function LaunchProjectile(inst, target)
 end
 
 local function BeargerFunctions(inst)
-    inst.entity:SetCanSleep(false)
-
-    if inst.components.groundpounder then
-        local _groundpoundFn = inst.components.groundpounder.groundpoundFn
-        local function OnGroundPound(inst, ...)
-            local target = inst.sg.statemem.um_poundtarget
+    local groundpounder = inst.components.groundpounder
+    if groundpounder then
+        local _groundpoundFn = groundpounder.groundpoundFn
+        groundpounder.groundpoundFn = function(_inst, ...)
+            local target = _inst.sg.statemem.um_poundtarget
             if target then
                 local target_index = {}
                 local found_targets = {}
-                local ix, iy, iz = inst.Transform:GetWorldPosition()
+                local ix, iy, iz = _inst.Transform:GetWorldPosition()
                 local px, py, pz = target.Transform:GetWorldPosition()
                 for i = 1, 5 do
                     local delay = i / 10
-                    inst:DoTaskInTime(FRAMES * i * 1.5 + delay, function()
+                    _inst:DoTaskInTime(FRAMES * i * 1.5 + delay, function()
                         if target and target:IsValid() then
-                            local rad = math.rad(inst:GetAngleToPoint(px, py, pz))
+                            local rad = math.rad(_inst:GetAngleToPoint(px, py, pz))
                             local velx = math.cos(rad) * 4.5
                             local velz = -math.sin(rad) * 4.5
                             local dx, dy, dz = ix + (i * velx), 0, iz + (i * velz)
@@ -123,15 +122,14 @@ local function BeargerFunctions(inst)
                             fx.Transform:SetPosition(dx, dy, dz)
                             if fx.prefab == "um_bearger_sinkhole" then
                                 fx:PushEvent("startcollapse")
-                                fx.bearger = inst
+                                fx.bearger = _inst
                             end
                         end
                     end)
                 end
             end
-            if _groundpoundFn then _groundpoundFn(inst, ...) end
+            if _groundpoundFn then _groundpoundFn(_inst, ...) end
         end
-        inst.components.groundpounder.groundpoundFn = OnGroundPound
     end
 
     inst:ListenForEvent("timerdone", RockThrowTimer)

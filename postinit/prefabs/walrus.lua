@@ -3,7 +3,7 @@ GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------
 local easing = require("easing")
 
-SetSharedLootTable( 'walrus_summer',
+SetSharedLootTable('walrus_summer',
 {
     {'meat',            1.00},
     {'blowdart_pipe',   1.00},
@@ -11,7 +11,6 @@ SetSharedLootTable( 'walrus_summer',
     {'walrus_tusk',     0.50},
     {'hawaiianshirt',     0.05},
 })
-
 
 local function SpitCooldown(inst, data)
     local target = inst.components.combat.target ~= nil and inst.components.combat.target or nil
@@ -94,6 +93,14 @@ local function OnIsSummer(inst, issummer)
     end
 end
 
+SetSharedLootTable('um_walrus',
+{
+    {'meat',            1.00},
+    {'blowdart_pipe',   1.00},
+    {'walrushat',       0.50},
+    {'walrus_tusk',     1.00},
+})
+
 env.AddPrefabPostInit("walrus", function (inst)
     if not TheWorld.ismastersim then
         return
@@ -112,14 +119,6 @@ env.AddPrefabPostInit("walrus", function (inst)
     if TheWorld.state.issummer then
         OnIsSummer(inst, true)
     end
-
-    SetSharedLootTable('um_walrus',
-    {
-        {'meat',            1.00},
-        {'blowdart_pipe',   1.00},
-        {'walrushat',       0.50},
-        {'walrus_tusk',     1.00},
-    })
 
     inst.components.lootdropper:SetChanceLootTable('um_walrus')
 end)

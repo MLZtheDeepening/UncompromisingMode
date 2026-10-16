@@ -584,12 +584,14 @@ DESCRIBE.UM_BOATBOTTLE = {
     EMPTY = "I can lift whole boat now! But it is not very impressive."
 }
 
-ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {"Wolfgang should wait for little bug to sit.",
+--[[ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {
+    "Wolfgang should wait for little bug to sit.",
     "Maybe little flutterby is smarter than Wolfgang thought.",
     "Wolfgang feels silly punching little bug.",
     "Wolfgang will take a break, maybe little flutterby will too.",
-    "Mighty punches too obvious for little flutterby."}
-	
+    "Mighty punches too obvious for little flutterby."
+}]]
+
 DESCRIBE.WATHOM_CORPSE = "Dead, but no skeleton?"
 
 DESCRIBE.WATHGRITHR_SHIELD_DREADSTONE = "Wolfgang has no need for scary rock shield!"

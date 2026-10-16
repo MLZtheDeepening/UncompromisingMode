@@ -3,10 +3,10 @@ GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------
 do
     SetSharedLootTable('catty',
-        {
-            { 'meat',     1.00 },
-            { 'coontail', 1.00 },
-        })
+    {
+        { 'meat',     1.00 },
+        { 'coontail', 1.00 },
+    })
 
     local function OnAttackOther(inst, data)
         if data.target:HasTag("raidrat") and not data.target.components.health:IsDead() then

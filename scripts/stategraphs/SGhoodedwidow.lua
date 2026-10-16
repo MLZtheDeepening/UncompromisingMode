@@ -77,7 +77,7 @@ local events =
             elseif inst.sg:HasStateTag("charge") and (inst.um_bear_trapped or inst.components.sleeper.sleepiness > 0) then
                 inst.sg:GoToState("chargeover")
             elseif not inst.sg:HasStateTag("electrocute") then
-                if not inst.sg:HasStateTag("ability") and not inst.sg:HasStateTag("attack") and not RunningForAbility(inst) then
+                if not inst.sg:HasAnyStateTag("ability", "attack") and not RunningForAbility(inst) then
                     inst.sg:GoToState("hit")
                 end
                 if inst.sg:HasStateTag("eating") then -- If we're eating we definately need to go to hit

@@ -12,8 +12,9 @@ local function OnHitOther(inst, data)
             inst.components.thief:StealItem(target)
         end
     
-        if target:HasTag("creatureknockbackable") or target:HasTag("player") and UMCommonFns.ShouldKnockback(target) then
+        if UMCommonFns.ShouldKnockback(target) then
             inst.sg:GoToState("taunt")
+            target:PushEvent("knockback", {knocker = inst, radius = 150, strengthmult = 1.5})
         end
     end
 end

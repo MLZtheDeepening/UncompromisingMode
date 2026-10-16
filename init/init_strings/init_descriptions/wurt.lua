@@ -584,13 +584,16 @@ DESCRIBE.UM_BOATBOTTLE = {
     EMPTY = "How get it out now? Glorp."
 }
 
-ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {"Hee-hee, chasing is fun.",
+--[[ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {
+    "Hee-hee, chasing is fun.",
     "Stop moving! Wanna catch you!",
     "Should try a sneak attack, florp.",
     "Glurph, get back here!",
-    "Can't keep flying forever, flort."}
+    "Can't keep flying forever, flort."
+}]]
 
 DESCRIBE.WATHOM_CORPSE = "Florp! He bubbling!"
+
 ANNOUNCE.ANNOUNCE_WEAPON_TOOWEAK_ICESHIELD = "Ghrr! Why it so hard!?"
 DESCRIBE.UM_THULECITE_RAZOR= "Yucky mucky gooey ooey razor... florp."
 DESCRIBE.UM_DURIAN_CREAM_MARSHCAKE = "Best snack! Stinks like swamp!"
