@@ -9,20 +9,20 @@ end
 
 local function GetAttackedPostInit(self, fn)
 	local _GetAttackedOrInternal = self[fn]
-	self[fn] = function(self, attacker, damage, weapon, stimuli, spdamage, ...)
-        --[[if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and from_doattack and self.inst.UMSlipAway and self.inst:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}, true) then
+	self[fn] = function(self, attacker, damage, weapon, stimuli, spdamage, from_doattack, ...)
+        if TUNING.DSTU.BUTTERFLYWINGS_NERF == "unique" and fn == "GetAttacked_Internal" and from_doattack and self.inst.UMSlipAway and self.inst:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}) then
             if attacker and weapon and weapon:IsValid() then
                 attacker:PushEvent("um_attacker_attacked_pst", {weapon = weapon})
             end
             return true
-        end]]
+        end
 
         if self.inst:HasTag("take_extra_spdamage") and attacker and not attacker:HasTag("player") and attacker.components.health and attacker.components.combat then
             --type check to not crash mods that pass spdamage as something other than actual spdamage.
             if spdamage and type(spdamage) == "table" and spdamage.planar then
                 spdamage.planar = spdamage.planar + 10
             else
-                spdamage = { planar = 10 }
+                spdamage = {planar = 10}
             end
         end
 
@@ -103,12 +103,12 @@ local function GetAttackedPostInit(self, fn)
         if TUNING.DSTU.BEEFALO_NERF and damageredirecttarget and damageredirecttarget.components.rideable then
             local redirect_combat = damageredirecttarget.components.combat
             if redirect_combat then
-                redirect_combat[fn](redirect_combat, attacker, damage, weapon, stimuli, spdamage, ...)
+                redirect_combat[fn](redirect_combat, attacker, damage, weapon, stimuli, spdamage, from_doattack, ...)
                 damage, stimuli = damage / 2, "beefalo_half_damage" -- added new stimuli to prevent Stackoverflow
             end
         end
 
-        local ret = {_GetAttackedOrInternal(self, attacker, damage, weapon, stimuli, spdamage, ...)}
+        local ret = {_GetAttackedOrInternal(self, attacker, damage, weapon, stimuli, spdamage, from_doattack, ...)}
 
         if attacker and attacker:IsValid() and weapon and weapon:IsValid() then
             attacker:PushEvent("um_attacker_attacked_pst", {weapon = weapon})
@@ -118,8 +118,9 @@ local function GetAttackedPostInit(self, fn)
 	end
 end
 
+local KLEI_BETA_CHANGES = UPDATE_CHECK
 env.AddComponentPostInit("combat", function(self)
-    GetAttackedPostInit(self, UPDATE_CHECK and "GetAttacked_Internal" or "GetAttacked")
+    GetAttackedPostInit(self, KLEI_BETA_CHANGES and "GetAttacked_Internal" or "GetAttacked")
 
     -- Peerless jade effect, if there is an existing damage multiplier, increase it by some amount more
     local _CalcDamage = self.CalcDamage
@@ -168,7 +169,7 @@ env.AddComponentPostInit("combat", function(self)
     local AREA_EXCLUDE_TAGS = {"INLIMBO", "notarget", "noattack", "flight", "invisible"}
     local _DoAttack = self.DoAttack
     function self:DoAttack(targ, weapon, projectile, stimuli, instancemult, instrangeoverride, instpos, ...)
-        --[[local sliptarget = TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and (targ or self.target)
+        local sliptarget = TUNING.DSTU.BUTTERFLYWINGS_NERF == "unique" and KLEI_BETA_CHANGES and (targ or self.target)
         if sliptarget and sliptarget.UMSlipAway then
             if instrangeoverride then self.temprange = instrangeoverride end
             if instpos then self.temppos = instpos end
@@ -187,8 +188,8 @@ env.AddComponentPostInit("combat", function(self)
                     stimuli = "electric"
                 end
             end
-            if self:CanHitTarget(sliptarget, weapon) and sliptarget:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}, true) then return end
-        end]]
+            if self:CanHitTarget(sliptarget, weapon) and sliptarget:UMSlipAway({attacker = self.inst, weapon = weapon, stimuli = stimuli}) then return end
+        end
         if self.um_areahit and not self.um_ignoreareahit then
             self.ignorehitrange = true
             self.um_ignoreareahit = true

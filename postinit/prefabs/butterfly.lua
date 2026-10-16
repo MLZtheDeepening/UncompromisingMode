@@ -1,8 +1,8 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 
-if TUNING.DSTU.BUTTERFLYWINGS_NERF == "petals" then
-    --[[local function Slippy(inst, target, distancemod) -- Reduced from wixie_shove to something only applicable to the butterfly
+if TUNING.DSTU.BUTTERFLYWINGS_NERF == "unique" then
+    local function Slippy(inst, target, distancemod) -- Reduced from wixie_shove to something only applicable to the butterfly
         local x, y, z = inst.Transform:GetWorldPosition()
         for i = 1, 50 do
             inst:DoTaskInTime((i - 1) / 50, function(inst)
@@ -19,34 +19,20 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "petals" then
         end
     end
 
-    local sittingstates = {"pollinate", "land_idle", "thraw", "frozen"}
     local allowedstimuli = {"soul"}
-    local disallowedattackertags = {"sporecloud", "FX"}
-    local function SittingStill(statename)
-        return statename and table.contains(sittingstates, statename)
+    local function AbleToBeAttacked(inst, weapon, stimuli)
+        return inst.sg:HasStateTag("busy") and inst.sg.currentstate.name ~= "takeoff"
+            or weapon and (weapon.prefab == "bugzapper" or UMCommonFns.IsRangedWeapon(weapon))
+            or stimuli and table.contains(allowedstimuli, stimuli)
     end
 
-    local function ByPassWeapon(weapon)
-        return weapon and (weapon.prefab == "bugzapper" or weapon:HasTag("blowdart")
-            or (weapon.components.weapon and weapon.components.weapon.projectile
-            or weapon.components.projectile or weapon.components.complexprojectile and not weapon.components.complexprojectile.ismeleeweapon))
-    end
-
-    local function ByStimuli(stimuli)
-        return stimuli and table.contains(allowedstimuli, stimuli)
-    end
-
-    local function UMSlipAway(inst, data, doslip)
+    local function UMSlipAway(inst, data)
         local attacker = data.attacker
-        local statename = inst.sg and inst.sg.currentstate.name
         local shouldslip = false
-        if attacker and attacker:IsValid() and not attacker:HasAnyTag(disallowedattackertags) and not ByStimuli(data.stimuli)
-            and not SittingStill(statename) and not ByPassWeapon(data.weapon or attacker) then -- Can only attack when criteria is met.
-            if doslip then
-                inst.SoundEmitter:PlaySound("dontstarve/movement/slip_fall_whoop")
-                Slippy(attacker, inst)
-                if attacker:HasTag("player") then UMCommonFns.Say(attacker, GetString(attacker, "ANNOUNCE_BUTTERFLY_SLIP")) end
-            end
+        if attacker and attacker:IsValid() and not AbleToBeAttacked(inst, data.weapon or attacker, data.stimuli) then -- Can only attack when criteria is met.
+            inst.SoundEmitter:PlaySound("dontstarve/movement/slip_fall_whoop")
+            Slippy(attacker, inst)
+            if attacker:HasTag("player") then UMCommonFns.Say(attacker, GetString(attacker, "ANNOUNCE_BUTTERFLY_SLIP")) end
             shouldslip = true
         end
         return shouldslip
@@ -91,7 +77,7 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "petals" then
             inst.active_monitoring:Cancel()
             inst.active_monitoring = nil
         end
-    end]]
+    end
 
     local function MakeButtery(inst)
         SpawnPrefab("um_buttery_fly").Transform:SetPosition(inst.Transform:GetWorldPosition())
@@ -104,14 +90,10 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "petals" then
         end
     end
 
-    local butterflies = {["butterfly"] = {"petals"}, ["um_buttery_fly"] = {"petals", "petals"}, ["moonbutterfly"] = {"moon_tree_blossom"}}
-    for prefab, petaltable in pairs(butterflies) do
-        env.AddPrefabPostInit(prefab, function(inst)
-            --inst:AddTag("um_slippery")
-
+    local function SlipperyButterflies(inst, petaltable)
+        if petaltable then
             if not TheWorld.ismastersim then return end
 
-            --inst.UMSlipAway = UMSlipAway
             inst.um_petaldroptable = petaltable
 
             local lootdropper = inst.components.lootdropper
@@ -126,10 +108,26 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "petals" then
                     return _LootSetupFn and _LootSetupFn(_lootdropper, ...)
                 end)
             end
+        else
+            inst:AddTag("um_slippery")
 
-            --inst:DoPeriodicTask(2, CheckForNearbyBozos)
+            if not TheWorld.ismastersim then return end
+
+            inst.UMSlipAway = UMSlipAway
+
+            inst:DoPeriodicTask(2, CheckForNearbyBozos)
+        end
+    end
+
+    local butterflies = {["butterfly"] = {"petals"}, ["um_buttery_fly"] = {"petals", "petals"}, ["moonbutterfly"] = {"moon_tree_blossom"}}
+    for prefab, petaltable in pairs(butterflies) do
+        env.AddPrefabPostInit(prefab, function(inst)
+            SlipperyButterflies(inst, not UPDATE_CHECK and petaltable)
+
+            if not TheWorld.ismastersim then return end
 
             if prefab == "butterfly" then
+                local lootdropper = inst.components.lootdropper
                 if lootdropper then lootdropper:SetLoot({"butterflywings"}) end
 
                 local _OnSave = inst.OnSave

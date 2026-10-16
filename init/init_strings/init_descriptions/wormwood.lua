@@ -559,13 +559,13 @@ DESCRIBE.UM_BOATBOTTLE = {
     EMPTY = "Pretty glowy keep floater small"
 }
 
---[[ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {
+ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {
     "Why running, friend?",
     "Wheee",
     "Not right",
     "Whoops",
     "Friend is funny"
-}]]
+}
 
 DESCRIBE.WATHOM_CORPSE = "Not done yet"
 
