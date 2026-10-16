@@ -299,21 +299,16 @@ local function ClearRecentlyCharged(inst, other)
 end
 
 local function onothercollide(inst, other, owner)
-    if not other:IsValid() or inst.recentlycharged[other] then return end
+    inst.recentlycharged[other] = true
+    inst:DoTaskInTime(3, ClearRecentlyCharged, other)
+    inst.SoundEmitter:PlaySound("dontstarve/creatures/rook/explo")
+    other.components.combat:GetAttacked(owner, 200, nil)
+    ShakeAllCameras(CAMERASHAKE.SIDE, .5, .05, .1, inst, 40)
+    inst.AnimState:PlayAnimation("close")
+    inst:DoTaskInTime(.3, inst.Remove)
 
-    if other.components.health and not other.components.health:IsDead() and other.components.combat and owner.components.combat and owner.components.combat:CanAttack(other) then
-        if other:HasTag("shadowcreature") and other.components.combat.target == nil then return end
-        inst.recentlycharged[other] = true
-        inst:DoTaskInTime(3, ClearRecentlyCharged, other)
-        inst.SoundEmitter:PlaySound("dontstarve/creatures/rook/explo")
-        other.components.combat:GetAttacked(owner, 200, nil)
-        ShakeAllCameras(CAMERASHAKE.SIDE, .5, .05, .1, inst, 40)
-        inst.AnimState:PlayAnimation("close")
-        inst:DoTaskInTime(.3, inst.Remove)
-
-        if inst.owner then
-            inst.owner:PushEvent("gore_horn_collision")
-        end
+    if inst.owner then
+        inst.owner:PushEvent("gore_horn_collision")
     end
 end
 
@@ -322,9 +317,9 @@ local function oncollide(inst)
     local owner = inst.owner and inst.owner:IsValid() and inst.owner
     if owner then
         local x, y, z = owner.Transform:GetWorldPosition()
-        local ents = TheSim:FindEntities(x, y, z, 3, nil, NOTAGS)
-        for i, v in ipairs(ents) do
-            if owner.components.combat:CanTarget(v) and not owner.components.combat:IsAlly(v) then
+        for i, v in ipairs(TheSim:FindEntities(x, y, z, 3, nil, NOTAGS)) do
+            if v ~= owner and v:IsValid() and not (v.components.health and v.components.health:IsDead())
+                and owner.components.combat and owner.components.combat:CanTarget(v) and not owner.components.combat:IsAlly(v) and not inst.recentlycharged[v] then
                 onothercollide(inst, v, owner)
             end
         end

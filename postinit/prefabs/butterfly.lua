@@ -1,8 +1,8 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 
-if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" then
-    local function Slippy(inst, target, distancemod) -- Reduced from wixie_shove to something only applicable to the butterfly
+if TUNING.DSTU.BUTTERFLYWINGS_NERF == "petals" then
+    --[[local function Slippy(inst, target, distancemod) -- Reduced from wixie_shove to something only applicable to the butterfly
         local x, y, z = inst.Transform:GetWorldPosition()
         for i = 1, 50 do
             inst:DoTaskInTime((i - 1) / 50, function(inst)
@@ -91,7 +91,7 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" then
             inst.active_monitoring:Cancel()
             inst.active_monitoring = nil
         end
-    end
+    end]]
 
     local function MakeButtery(inst)
         SpawnPrefab("um_buttery_fly").Transform:SetPosition(inst.Transform:GetWorldPosition())
@@ -101,35 +101,48 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" then
     local function RollForButtery(inst)
         if inst.buttery and inst.buttery >= 98 then
             MakeButtery(inst)
-        else
-            inst.components.lootdropper:SetLoot({"butterflywings"})
         end
     end
 
-    local butterflies = {"butterfly", "um_buttery_fly", "moonbutterfly"}
-    for i,v in ipairs(butterflies) do
-        env.AddPrefabPostInit(v, function(inst)
-            inst:AddTag("um_slippery")
+    local butterflies = {["butterfly"] = {"petals"}, ["um_buttery_fly"] = {"petals", "petals"}, ["moonbutterfly"] = {"moon_tree_blossom"}}
+    for prefab, petaltable in pairs(butterflies) do
+        env.AddPrefabPostInit(prefab, function(inst)
+            --inst:AddTag("um_slippery")
 
             if not TheWorld.ismastersim then return end
 
-            inst.UMSlipAway = UMSlipAway
+            --inst.UMSlipAway = UMSlipAway
+            inst.um_petaldroptable = petaltable
 
-            inst:DoPeriodicTask(2, CheckForNearbyBozos)
-
-            if v == "butterfly" then
-                inst.OnSave = function(inst,data)
-                    if inst.buttery then data.buttery = inst.buttery end
-                end
-                inst.OnLoad = function(inst,data)
-                    if data.buttery then inst.buttery = data.buttery end
-                    RollForButtery(inst)
-                    return data
-                end
-                inst:DoTaskInTime(0, function(inst)
-                    if not inst.buttery then inst.buttery = math.random(1, 100) end
-                    RollForButtery(inst)
+            local lootdropper = inst.components.lootdropper
+            if lootdropper then
+                local _LootSetupFn = lootdropper.lootsetupfn
+                lootdropper:SetLootSetupFn(function(_lootdropper, ...)
+                    local _inst = _lootdropper.inst
+                    if not _inst.um_wasmurdered then
+                        _lootdropper:SetChanceLootTable(nil) -- Moon Moth sets a chance loot table that needs to be cleared here.
+                        _lootdropper:SetLoot(_inst.um_petaldroptable or {"petals"})
+                    end
+                    return _LootSetupFn and _LootSetupFn(_lootdropper, ...)
                 end)
+            end
+
+            --inst:DoPeriodicTask(2, CheckForNearbyBozos)
+
+            if prefab == "butterfly" then
+                if lootdropper then lootdropper:SetLoot({"butterflywings"}) end
+
+                local _OnSave = inst.OnSave
+                inst.OnSave = function(_inst, data, ...)
+                    if _inst.buttery then data.buttery = _inst.buttery end
+                    return _OnSave and _OnSave(_inst, data, ...)
+                end
+                local _OnLoad = inst.OnLoad
+                inst.OnLoad = function(_inst, data, ...)
+                    _inst.buttery = data and data.buttery or math.random(1, 100)
+                    RollForButtery(_inst)
+                    return _OnLoad and _OnLoad(_inst, data, ...)
+                end
             end
         end)
     end
@@ -145,20 +158,8 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" then
             inst:WatchWorldState("isday", ReEnableButterfly)
         end)
     end
-    
-    -- Burnable Butterfly Wings.
-    local wing_types = {"butterflywings", "moonbutterflywings"}
-    for i,v in ipairs(wing_types) do
-        env.AddPrefabPostInit(v, function(inst)
-            MakeSmallBurnable(inst, TUNING.SMALL_BURNTIME)
-            MakeSmallPropagator(inst)
-            MakeHauntableLaunchAndIgnite(inst)
-        end)
-    end
 
     local FLOWER_TAGS = {"flower"}
-    local BUTTERFLY_TAGS = {"butterfly"}
-
     local function GetSpawnPoint(player)
         local rad = 25
         local mindistance = 36

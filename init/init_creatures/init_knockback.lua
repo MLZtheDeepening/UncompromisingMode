@@ -20,22 +20,22 @@ local EQUIPSLOTS = _G.EQUIPSLOTS
 
 local GIANTS =
 {
-	--[[["bearger"] =
+	--[["bearger"] =
     {
         radius = 125,
 		power = 1,
     },]]
-	--[[["dragonfly"] =
+	--[["dragonfly"] =
     {
         radius = 75,
 		power = 1.25,
     },]]
-	--[[["mock_dragonfly"] =
+	--[["mock_dragonfly"] =
     {
         radius = 75,
 		power = 1.25,
     },]]
-	--[[["leif"] =
+	--[["leif"] =
     {
         radius = 75,
 		power = 1,
@@ -45,23 +45,23 @@ local GIANTS =
         radius = 75,
 		power = 1,
     },]]
-	--[[["minotaur"] =
+	--[["minotaur"] =
     {
         radius = 200,
 		power = 1.5,
     },]]
-	--[[["rook"] =
+	--[["rook"] =
     {
         radius = 150,
 		power = 1,
     },]]
-	["krampus"] =
+	--[["krampus"] =
     {
         radius = 150,
 		power = 1.5,
 		nomultiknockback = true,
-    },
-	--[[["moose"] =
+    },]]
+	--[["moose"] =
     {
         radius = 200,
 		power = 1,

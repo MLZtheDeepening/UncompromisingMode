@@ -50,12 +50,6 @@ local function OnWorked(inst, worker)
     end
 end
 
-local function OnMutate(inst, transformed_inst)
-	if transformed_inst then
-		transformed_inst.sg:GoToState("idle")
-	end
-end
-
 local function OnDeploy(inst, pt, deployer)
     local flower = SpawnPrefab("um_buttercup")
     if flower then
@@ -69,13 +63,19 @@ local function OnDeploy(inst, pt, deployer)
     end
 end
 
+local function OnMutate(inst, transformed_inst)
+	if transformed_inst then
+		transformed_inst.sg:GoToState("idle")
+	end
+end
+
 local function fn()
     local inst = CreateEntity()
 
     --Core components
-    inst.entity:AddTransform()
-    inst.entity:AddAnimState()
-    inst.entity:AddDynamicShadow()
+    local trans = inst.entity:AddTransform()
+    local anim = inst.entity:AddAnimState()
+    local shadow = inst.entity:AddDynamicShadow()
     inst.entity:AddSoundEmitter()
     inst.entity:AddNetwork()
 
@@ -91,18 +91,19 @@ local function fn()
     inst:AddTag("wildfireprotected")
     inst:AddTag("deployedplant")
     inst:AddTag("noember")
+    inst:AddTag("plantcreature")
 
     --pollinator (from pollinator component) added to pristine state for optimization
     inst:AddTag("pollinator")
 
-    inst.Transform:SetTwoFaced()
+    trans:SetTwoFaced()
 
-    inst.AnimState:SetBuild("um_buttery_fly")
-    inst.AnimState:SetBank("butterfly")
-    inst.AnimState:PlayAnimation("idle")
-    inst.AnimState:SetRayTestOnBB(true)
+    anim:SetBuild("um_buttery_fly")
+    anim:SetBank("butterfly")
+    anim:PlayAnimation("idle")
+    anim:SetRayTestOnBB(true)
 
-    inst.DynamicShadow:SetSize(.8, .5)
+    shadow:SetSize(.8, .5)
 
     MakeInventoryFloatable(inst)
 
@@ -115,67 +116,81 @@ local function fn()
     end
 
     ---------------------
-    inst:AddComponent("locomotor") -- locomotor must be constructed before the stategraph
-    inst.components.locomotor:EnableGroundSpeedMultiplier(false)
-    inst.components.locomotor:SetTriggersCreep(false)
+    local locomotor = inst:AddComponent("locomotor")
+    locomotor:EnableGroundSpeedMultiplier(false)
+    locomotor:SetTriggersCreep(false)
+
     inst:SetStateGraph("SGbutterfly")
+    inst.sg.mem.burn_on_electrocute = true
+
     ---------------------
     inst:AddComponent("stackable")
-    inst:AddComponent("inventoryitem")
-    inst.components.inventoryitem.canbepickedup = false
-    inst.components.inventoryitem.canbepickedupalive = true
-    inst.components.inventoryitem.nobounce = true
-    inst.components.inventoryitem.pushlandedevents = false
+    local inventoryitem = inst:AddComponent("inventoryitem")
+    inventoryitem.canbepickedup = false
+    inventoryitem.canbepickedupalive = true
+    inventoryitem.nobounce = true
+    inventoryitem.pushlandedevents = false
+
     ------------------
     inst:AddComponent("pollinator")
+
     ------------------
-    inst:AddComponent("health")
-    inst.components.health:SetMaxHealth(1)
+    local health = inst:AddComponent("health")
+    health:SetMaxHealth(1)
+
     ------------------
-    inst:AddComponent("combat")
-    inst.components.combat.hiteffectsymbol = "butterfly_body"
+    local combat = inst:AddComponent("combat")
+    combat.hiteffectsymbol = "butterfly_body"
+
     ------------------
     inst:AddComponent("knownlocations")
 
-    MakeSmallBurnableCharacter(inst, "butterfly_body")
+    local burnable = MakeSmallBurnableCharacter(inst, "butterfly_body")
     MakeTinyFreezableCharacter(inst, "butterfly_body")
+    burnable:SetBurnTime(6 * TUNING.PLANTMOB_BURNTIME_MULT)
+    health.fire_damage_scale = TUNING.PLANTMOB_FIRE_DAMAGE_SCALE
+
     ------------------
-    inst:AddComponent("inspectable")
-	inst.components.inspectable.nameoverride = "BUTTERFLY"
+    local inspectable = inst:AddComponent("inspectable")
+	inspectable.nameoverride = "BUTTERFLY"
+
     ------------------
-    inst:AddComponent("lootdropper")
-    inst.components.lootdropper:AddRandomLoot("butter", 1)
-    inst.components.lootdropper.numrandomloot = 1
+    local lootdropper = inst:AddComponent("lootdropper")
+    lootdropper:AddRandomLoot("butter", 1)
+    lootdropper.numrandomloot = 1
+
     ------------------
-    inst:AddComponent("workable")
-    inst.components.workable:SetWorkAction(ACTIONS.NET)
-    inst.components.workable:SetWorkLeft(1)
-    inst.components.workable:SetOnFinishCallback(OnWorked)
+    local workable = inst:AddComponent("workable")
+    workable:SetWorkAction(ACTIONS.NET)
+    workable:SetWorkLeft(1)
+    workable:SetOnFinishCallback(OnWorked)
+
     ------------------
     inst:AddComponent("tradable")
+
     ------------------
-    inst:AddComponent("deployable")
-    inst.components.deployable.ondeploy = OnDeploy
-    inst.components.deployable:SetDeployMode(DEPLOYMODE.PLANT)
-    inst.components.deployable:SetDeploySpacing(DEPLOYSPACING.LESS)
-    ------------------
+    local deployable = inst:AddComponent("deployable")
+    deployable.ondeploy = OnDeploy
+    deployable:SetDeployMode(DEPLOYMODE.PLANT)
+    deployable:SetDeploySpacing(DEPLOYSPACING.LESS)
+
     MakeHauntablePanicAndIgnite(inst)
 
     inst:SetBrain(brain)
 
     inst.butterflyspawner = TheWorld.components.butterflyspawner
     if inst.butterflyspawner then
-        inst.components.inventoryitem:SetOnPutInInventoryFn(inst.butterflyspawner.StopTrackingFn)
+        inventoryitem:SetOnPutInInventoryFn(inst.butterflyspawner.StopTrackingFn)
         inst:ListenForEvent("onremove", inst.butterflyspawner.StopTrackingFn)
         inst.butterflyspawner:StartTracking(inst)
     end
 
     MakeFeedableSmallLivestock(inst, TUNING.BUTTERFLY_PERISH_TIME, OnPickedUp, OnDropped)
 
-	inst:AddComponent("halloweenmoonmutable")
-	inst.components.halloweenmoonmutable:SetPrefabMutated("moonbutterfly")
-	inst.components.halloweenmoonmutable:SetOnMutateFn(OnMutate)
-	inst.components.halloweenmoonmutable.push_attacked_on_new_inst = false
+    local halloweenmoonmutable = inst:AddComponent("halloweenmoonmutable")
+    halloweenmoonmutable:SetPrefabMutated("moonbutterfly")
+    halloweenmoonmutable:SetOnMutateFn(OnMutate)
+    halloweenmoonmutable.push_attacked_on_new_inst = false
 
     return inst
 end

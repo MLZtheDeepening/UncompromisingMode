@@ -865,10 +865,10 @@ configuration_options = {
         label = "Adjusted Butterflies",
         hover = "Butterflies are changed to even the playing field with respect to early game healing.",
         options = {
-            { description = "Slippery",     data = "slippery" },
+            { description = "Petals", data = "petals", hover = "Butterflies drop petals when attacked and their normal drops when murdered."},
             { description = "Nerfed Stats", data = "stat_nerf" },
-            { description = "Disabled",     data = "nothing" } },
-        default = "slippery"
+            { description = "Disabled", data = "nothing" } },
+        default = "petals"
     },
     BinaryConfig("angry_werepigs", "Angry Werepigs", "Werepigs prioritize attacking over eating.", true),
     BinaryConfig("cowardfrogs", "Frog Anti-cheese", "Frogs flee from bosses to prevent cheesing.", true),

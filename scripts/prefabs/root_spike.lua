@@ -186,12 +186,8 @@ local function RestartSpike(inst, delay, duration, variation)
 end
 
 local function chop_root(inst, chopper, chopsleft, numchops)
-    if not (chopper ~= nil and chopper:HasTag("playerghost")) then
-        inst.SoundEmitter:PlaySound(
-            chopper ~= nil and chopper:HasTag("beaver") and
-            "dontstarve/characters/woodie/beaver_chop_tree" or
-            "dontstarve/wilson/use_axe_tree"
-        )
+    if chopper then
+        inst.SoundEmitter:PlaySound(chopper:HasTag("beaver") and "dontstarve/characters/woodie/beaver_chop_tree" or "dontstarve/wilson/use_axe_tree")
     end
 
     --inst.AnimState:PlayAnimation("onworked")

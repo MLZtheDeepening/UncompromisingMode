@@ -1,18 +1,35 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 
+local function GetTargetForState(target, inst)
+    return target and target:IsValid() and target or inst.components.combat and inst.components.combat.target
+end
+
+local function MagmaHoundShootFire(inst)
+    local target = inst.sg.statemem.target
+    if target and target:IsValid() then
+        inst:ShootFire(3)
+    end
+end
+
+local function QuickAttackFX(inst)
+    inst[inst.sg.statemem.isfire and "FirePoof" or "SnowFX"](inst)
+    local target = inst.sg.statemem.target
+    if target and target:IsValid() then
+        inst:ForceFacePoint(target:GetPosition())
+    end
+end
+
 env.AddStategraphPostInit("hound", function(inst)
     local tauntstate = inst.states["taunt"]
     if tauntstate then
-        local tauntstate_onenter = tauntstate.onenter --AXE magmahound has the clay tag to ensure that he makes the correct stepping noises in the hound SG, however, this makes him howl instead of bark on the taunt call
-        tauntstate.onenter = function(inst, norepeat, ...) -- for that reason, I'm wrapping the onenter function for the taunt state, and making the magmahound perform the correct animation instead of using the Klei onenter for 
-            if inst.prefab == "magmahound" then -- the other hounds.
-                inst.Physics:Stop()
-                inst.AnimState:PlayAnimation("taunt")
-                inst.sg.statemem.norepeat = norepeat
-            else
-                tauntstate_onenter(inst, norepeat, ...)
-            end
+        local tauntstate_onenter = tauntstate.onenter
+        tauntstate.onenter = function(inst, norepeat, ...)
+            local magmahound = inst:HasAllTags("magmahound", "clay")
+            if magmahound then inst:RemoveTag("clay") end
+            local ret = tauntstate_onenter(inst, norepeat, ...)
+            if magmahound then inst:AddTag("clay") end
+            return ret
         end
     end
 
@@ -21,19 +38,13 @@ env.AddStategraphPostInit("hound", function(inst)
         local doattackeventhandler_fn = doattackeventhandler.fn
         doattackeventhandler.fn = function(inst, data, ...)
             if not (inst.components.health and inst.components.health:IsDead())
-                and ((inst.sg:HasStateTag("hit") and not inst.sg:HasStateTag("electrocute")) or not inst.sg:HasStateTag("busy")) then
-                if inst:HasAnyTag("lightninghound", "glacialhound") and inst.lightningshot then
-                    inst.sg:GoToState("charging_pre", data.target)
-                elseif inst:HasTag("magmahound") and inst.lightningshot then
-                    inst.sg:GoToState("burning_pre", data.target)
-                elseif inst.prefab == "firehound" and inst.spitfireready then --AXE Red Hounds should attempt to perform a short-range spitfire move
-                    inst.sg:GoToState("quickbreath", data.target)
-                elseif inst.prefab == "icehound" and inst.icespikeready then
-                    inst.sg:GoToState("quickspike", data.target)
-                elseif not inst:HasAnyTag("lightninghound", "magmahound") or data.target and data.target:IsValid() and inst:IsNear(data.target, 3) then
-                    doattackeventhandler_fn(inst, data, ...)
-                end
+                and ((inst.sg:HasStateTag("hit") and not inst.sg:HasStateTag("electrocute")) or not inst.sg:HasStateTag("busy")) and inst.um_specialattackready then
+                inst.sg:GoToState(data.target:IsValid() and not inst:IsNear(data.target, 3)
+                    and (inst:HasAnyTag("lightninghound", "glacialhound") and "charging_pre" or inst:HasTag("magmahound") and "burning_pre"
+                    or (inst.prefab == "firehound" or inst.prefab == "icehound") and "quickattack") or "attack", data.target)
+                return
             end
+            return doattackeventhandler_fn(inst, data, ...)
         end
     end
 
@@ -57,27 +68,33 @@ env.AddStategraphPostInit("hound", function(inst)
     {
         State {
             name = "leap_attack_pre",
-            tags = { "attack", "canrotate", "busy", "leapattack" },
+            tags = {"attack", "busy", "leapattack"},
 
             onenter = function(inst, target)
+                inst.sg.statemem.target = GetTargetForState(target, inst)
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
+                end
                 inst.components.locomotor:Stop()
                 inst.AnimState:PlayAnimation("jump")
-                inst.sg.statemem.startpos = Vector3(inst.Transform:GetWorldPosition())
-                inst.sg.statemem.targetpos = Vector3(target.Transform:GetWorldPosition())
             end,
 
             events =
             {
-                EventHandler("animover", function(inst) inst.sg:GoToState("leap_attack", { startpos = inst.sg.statemem.startpos, targetpos = inst.sg.statemem.targetpos }) end),
+                EventHandler("animover", function(inst) inst.sg:GoToState("leap_attack", target) end),
             },
         },
         State {
             name = "leap_attack",
-            tags = { "attack", "canrotate", "busy", "leapattack" },
+            tags = {"attack", "busy", "leapattack"},
 
             onenter = function(inst, target)
-                inst.sg.statemem.startpos = Vector3(inst.Transform:GetWorldPosition())
-                inst.sg.statemem.targetpos = Vector3(target.Transform:GetWorldPosition())
+                inst.sg.statemem.target = GetTargetForState(target, inst)
+                inst.sg.statemem.startpos = inst:GetPosition()
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    inst.sg.statemem.targetpos = inst.sg.statemem.target:GetPosition()
+                    inst:ForceFacePoint(inst.sg.statemem.targetpos)
+                end
                 --[[inst.sg.statemem.startpos = data.startpos
                 inst.sg.statemem.targetpos = data.targetpos]]
                 inst.components.locomotor:Stop()
@@ -90,7 +107,7 @@ env.AddStategraphPostInit("hound", function(inst)
             end,
 
             onupdate = function(inst)
-                if inst.components.amphibiouscreature and inst.components.amphibiouscreature.in_water then
+                if not inst.sg.statemem.targetpos or inst.components.amphibiouscreature and inst.components.amphibiouscreature.in_water then
                     inst.sg:GoToState("idle")
                     return
                 end
@@ -105,8 +122,6 @@ env.AddStategraphPostInit("hound", function(inst)
                 --inst.Physics:ClearMotorVelOverride()
                 inst.components.locomotor:Stop()
                 inst.components.locomotor:EnableGroundSpeedMultiplier(true)
-                inst.sg.statemem.startpos = nil
-                inst.sg.statemem.targetpos = nil
             end,
 
             timeline =
@@ -122,15 +137,15 @@ env.AddStategraphPostInit("hound", function(inst)
         },
         State {
             name = "leap_attack_pst",
-            tags = { "busy" },
+            tags = {"busy"},
 
-            onenter = function(inst, target)
-                inst.lightningshot = false
+            onenter = function(inst)
+                inst.um_specialattackready = false
                 --[[inst.components.timer:StopTimer("jumpability_cooldown")
                 inst.components.timer:StartTimer("jumpability_cooldown", 8)]]
                 inst.components.locomotor:Stop()
                 inst.AnimState:PlayAnimation("hit")
-                inst:LaunchProjectile(target)
+                inst:SporeCloudAttack()
             end,
 
             events =
@@ -140,33 +155,41 @@ env.AddStategraphPostInit("hound", function(inst)
         },
         State {
             name = "charging_pre",
-            tags = { "attack", "busy", "canrotate" },
+            tags = {"attack", "busy"},
 
-            onenter = function(inst)
+            onenter = function(inst, target)
+                inst.sg.statemem.target = GetTargetForState(target, inst)
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
+                end
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("scared_pre")
             end,
 
             events =
             {
-                EventHandler("animover", function(inst) inst.sg:GoToState("charging_loop") end),
+                EventHandler("animover", function(inst) inst.sg:GoToState("charging_loop", inst.sg.statemem.target) end),
             },
         },
         State {
             name = "charging_loop",
-            tags = { "busy", "canrotate", "charging" },
+            tags = {"busy", "charging"},
 
-            onenter = function(inst)
+            onenter = function(inst, target)
+                inst.sg.statemem.target = GetTargetForState(target, inst)
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
+                end
                 inst.SoundEmitter:PlaySound(inst.sounds.pant)
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("scared_loop", true)
                 inst:Charge()
-                local timeouttime = inst:HasTag("lightninghound") and 4 + math.random() or 1
-                inst.sg:SetTimeout(timeouttime)
+                inst.sg:SetTimeout(inst:HasTag("lightninghound") and 4 + math.random() or 1)
             end,
 
             onexit = function(inst)
-                inst.lightningshot = false
+                inst.um_specialattackready = false
+                if inst.UMToggleCombatRange then inst:UMToggleCombatRange() end
                 inst.components.timer:StopTimer("lightningshot_cooldown")
                 inst.components.timer:StartTimer("lightningshot_cooldown", 8 + math.random())
                 inst:CancelCharge()
@@ -174,14 +197,18 @@ env.AddStategraphPostInit("hound", function(inst)
 
             ontimeout = function(inst)
                 inst:CancelCharge()
-                inst.sg:GoToState("charging_pst")
+                inst.sg:GoToState("charging_pst", inst.sg.statemem.target)
             end,
         },
         State {
             name = "charging_pst",
-            tags = { "attack", "busy", "canrotate" },
+            tags = {"attack", "busy"},
 
-            onenter = function(inst)
+            onenter = function(inst, target)
+                inst.sg.statemem.target = GetTargetForState(target, inst)
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
+                end
                 inst.burning_anim_count = 0
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("scared_pst")
@@ -189,13 +216,13 @@ env.AddStategraphPostInit("hound", function(inst)
 
             events =
             {
-                EventHandler("animover", function(inst) inst.sg:GoToState(inst:HasTag("lightninghound") and "howl_attack" or "ice_howl_attack") end),
+                EventHandler("animover", function(inst) inst.sg:GoToState(inst:HasTag("lightninghound") and "howl_attack" or "ice_howl_attack", inst.sg.statemem.target) end),
             },
         },
         State {
             name = "regen_iceshield",
-            tags = { "busy", "howling" },
-            onenter = function(inst, target)
+            tags = {"busy", "howling"},
+            onenter = function(inst)
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("howl")
                 inst.SoundEmitter:PlaySound(inst.sounds.howl)
@@ -210,10 +237,10 @@ env.AddStategraphPostInit("hound", function(inst)
         },
         State {
             name = "howl_attack",
-            tags = { "attack", "busy", "howling" },
+            tags = {"attack", "busy", "howling"},
 
             onenter = function(inst, target)
-                inst.sg.statemem.target = target ~= nil and target:IsValid() and target or inst.components.combat and inst.components.combat.target
+                inst.sg.statemem.target = GetTargetForState(target, inst)
                 if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
                     inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
                 end
@@ -225,9 +252,9 @@ env.AddStategraphPostInit("hound", function(inst)
             {
                 TimeEvent(0, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.howl) end),
                 TimeEvent(15 * FRAMES, function(inst)
-                    if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
-                        inst.sg.statemem.inkpos = Vector3(inst.sg.statemem.target.Transform:GetWorldPosition())
-                        inst:LaunchProjectile(inst.sg.statemem.target)
+                    local target = inst.sg.statemem.target
+                    if target and target:IsValid() then
+                        inst:LaunchProjectile(target)
                     end
                 end),
             },
@@ -239,14 +266,14 @@ env.AddStategraphPostInit("hound", function(inst)
         },
         State {
             name = "ice_howl_attack",
-            tags = { "attack", "busy", "howling" },
+            tags = {"attack", "busy", "howling"},
 
             onenter = function(inst, target)
-                if not inst.tripleshot then inst.tripleshot = 1 end
-                inst.sg.statemem.target = target ~= nil and target:IsValid() and target or inst.components.combat and inst.components.combat.target
+                inst.sg.statemem.target = GetTargetForState(target, inst)
                 if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
                     inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
                 end
+                if not inst.tripleshot then inst.tripleshot = 1 end
                 inst.Physics:Stop()
                 --inst.AnimState:PlayAnimation("taunt")
                 inst.AnimState:PlayAnimation("atk_pre")
@@ -256,19 +283,19 @@ env.AddStategraphPostInit("hound", function(inst)
             {
                 TimeEvent(0, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.bark) end),
                 TimeEvent(5 * FRAMES, function(inst)
-                    if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
-                        inst:LaunchProjectile(inst.sg.statemem.target)
+                    local target = inst.sg.statemem.target
+                    if target and target:IsValid() then
+                        inst:LaunchProjectile(target)
                     end
                 end),
             },
 
             events =
             {
-
                 EventHandler("animover", function(inst)
                     if inst.tripleshot < 3 then
                         inst.tripleshot = inst.tripleshot + 1
-                        inst.sg:GoToState("ice_howl_attack")
+                        inst.sg:GoToState("ice_howl_attack", inst.sg.statemem.target)
                     else
                         inst.tripleshot = nil
                         inst.sg:GoToState("idle")
@@ -276,38 +303,43 @@ env.AddStategraphPostInit("hound", function(inst)
                 end),
             },
         },
-        
         --AXE This SG series is implemented by the Magma Hound, it charges up its attack by looping through a single state, then loops through a breathing state.
         State {
             name = "burning_pre",
-            tags = { "attack", "busy", "canrotate" },
+            tags = {"attack", "busy"},
 
-            onenter = function(inst)
+            onenter = function(inst, target)
+                inst.sg.statemem.target = GetTargetForState(target, inst)
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
+                end
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("scared_pre")
             end,
 
             events =
             {
-                EventHandler("animover", function(inst) inst.sg:GoToState("burning_loop") end),
+                EventHandler("animover", function(inst) inst.sg:GoToState("burning_loop", inst.sg.statemem.target) end),
             },
         },
         State {
             name = "burning_loop",
-            tags = { "busy", "canrotate", "charging" },
-            onenter = function(inst)
+            tags = {"busy", "charging"},
+            onenter = function(inst, target)
+                inst.sg.statemem.target = GetTargetForState(target, inst)
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
+                end
                 inst.SoundEmitter:PlaySound(inst.sounds.pant)
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("burningup", true)
                 inst:Charge()
-                if inst.sg.statemem.target ~= nil and inst.sg.statemem.target:IsValid() then
-                    inst:FacePoint(inst.sg.statemem.target.Transform:GetWorldPosition())
-                end
                 inst.sg:SetTimeout(1 + math.random())
             end,
 
             onexit = function(inst)
-                inst.lightningshot = false
+                inst.um_specialattackready = false
+                inst:UMToggleCombatRange()
                 inst.components.timer:StopTimer("lightningshot_cooldown")
                 inst.components.timer:StartTimer("lightningshot_cooldown", 9 + math.random())
                 inst:CancelCharge()
@@ -315,14 +347,18 @@ env.AddStategraphPostInit("hound", function(inst)
 
             ontimeout = function(inst)
                 inst:CancelCharge()
-                inst.sg:GoToState("burning_pst")
+                inst.sg:GoToState("burning_pst", inst.sg.statemem.target)
             end,
         },
         State {
             name = "burning_pst",
-            tags = { "attack", "busy", "canrotate" },
+            tags = {"attack", "busy"},
 
-            onenter = function(inst)
+            onenter = function(inst, target)
+                inst.sg.statemem.target = GetTargetForState(target, inst)
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
+                end
                 inst.burning_anim_count = 0
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("scared_pst")
@@ -330,62 +366,38 @@ env.AddStategraphPostInit("hound", function(inst)
 
             events =
             {
-                EventHandler("animover", function(inst) inst.sg:GoToState("burning_howl_attack") end),
+                EventHandler("animover", function(inst) inst.sg:GoToState("burning_howl_attack", inst.sg.statemem.target) end),
             },
         },
         State {
             name = "burning_howl_attack",
-            tags = { "attack", "busy", "howling", "canrotate" },
+            tags = {"attack", "busy", "howling"},
 
             onenter = function(inst, target)
+                inst.sg.statemem.target = GetTargetForState(target, inst)
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
+                end
                 --inst.Transform:SetFourFaced()
                 inst.burning_anim_count = inst.burning_anim_count + 1 or 0
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("belch")
-                inst.sg.statemem.target = target ~= nil and target:IsValid() and target or inst.components.combat and inst.components.combat.target
-                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
-                    inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
-                end
             end,
 
             timeline =
             {
                 TimeEvent(0, function(inst) inst.SoundEmitter:PlaySound(inst.sounds.howl) end),
-                TimeEvent(3 * FRAMES, function(inst)
-                    if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
-                        inst.sg.statemem.inkpos = Vector3(inst.sg.statemem.target.Transform:GetWorldPosition())
-                        inst:ShootFire(3)
-                        --inst:LaunchProjectile(inst.sg.statemem.target)
-                    end
-                end),
-                TimeEvent(6 * FRAMES, function(inst)
-                    if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
-                        inst.sg.statemem.inkpos = Vector3(inst.sg.statemem.target.Transform:GetWorldPosition())
-                        inst:ShootFire(3)
-                        --inst:LaunchProjectile(inst.sg.statemem.target)
-                    end
-                end),
-                TimeEvent(9 * FRAMES, function(inst)
-                    if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
-                        inst.sg.statemem.inkpos = Vector3(inst.sg.statemem.target.Transform:GetWorldPosition())
-                        inst:ShootFire(3)
-                        --inst:LaunchProjectile(inst.sg.statemem.target)
-                    end
-                end),
-                TimeEvent(12 * FRAMES, function(inst)
-                    if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
-                        inst.sg.statemem.inkpos = Vector3(inst.sg.statemem.target.Transform:GetWorldPosition())
-                        inst:ShootFire(3)
-                        --inst:LaunchProjectile(inst.sg.statemem.target)
-                    end
-                end),
+                TimeEvent(3 * FRAMES, MagmaHoundShootFire),
+                TimeEvent(6 * FRAMES, MagmaHoundShootFire),
+                TimeEvent(9 * FRAMES, MagmaHoundShootFire),
+                TimeEvent(12 * FRAMES, MagmaHoundShootFire),
             },
 
             events =
             {
                 EventHandler("animover", function(inst)
                     if inst.burning_anim_count < 6 then
-                        inst.sg:GoToState("burning_howl_attack")
+                        inst.sg:GoToState("burning_howl_attack", inst.sg.statemem.target)
                     else
                         inst.burning_anim_count = 0
                         inst.sg:GoToState("idle")
@@ -394,93 +406,45 @@ env.AddStategraphPostInit("hound", function(inst)
             },
         },
         State {
-            name = "quickbreath",
-            tags = { "attack", "canrotate", "busy"},
+            name = "quickattack",
+            tags = {"attack", "busy"},
 
             onenter = function(inst, target)
+                inst.sg.statemem.target = GetTargetForState(target, inst)
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
+                end
+                inst.sg.statemem.isfire = inst.prefab == "firehound"
                 inst.components.locomotor:Stop()
                 inst.AnimState:PlayAnimation("atk_pre")
-                inst.components.timer:StartTimer("quickbreath",math.random(6,10)) --AXE Queue up the next time the fire hound will spit fire again.
+                inst.components.timer:StartTimer(inst.sg.statemem.isfire and "quickbreath" or "quickspike", math.random(6, 10)) --AXE Queue up the next time the hound will spit again.
                 inst.AnimState:SetDeltaTimeMultiplier(.3)
-                
-                inst.spitfireready = false
-                inst.components.combat:SetRange(3,3) --AXE Reset the range back to normal
-                inst.sg.statemem.target = target ~= nil and target:IsValid() and target or inst.components.combat and inst.components.combat.target        
+                inst.um_specialattackready = false
+                inst.components.combat:SetRange(3, 3) --AXE Reset the range back to normal
             end,
-            
-            timeline =
-            {
-                TimeEvent(8 * FRAMES, function(inst)
-                    inst:FirePoof()
-                    if inst.sg.statemem.target and inst.sg.statemem.target:GetPosition() then
-                        inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
-                    end
-                end),
-                TimeEvent(16 * FRAMES, function(inst)
-                    inst:FirePoof()
-                    if inst.sg.statemem.target and inst.sg.statemem.target:GetPosition() then
-                        inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
-                    end
-                end),
-                TimeEvent(24 * FRAMES, function(inst)
-                    inst.AnimState:SetDeltaTimeMultiplier(1)
-                    if inst.sg.statemem.target and inst.sg.statemem.target:GetPosition() then
-                        inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
-                    end
-                    inst:ShootFire()
-                end),
-            },
-            
-            onexit = function(inst) --AXE Incase it's taken from this state via freezing, or such
-                inst.AnimState:SetDeltaTimeMultiplier(1)
-            end,
-            events =
-            {
-                EventHandler("animover", function(inst) inst.sg:GoToState("idle") end),
-            },
-        },
-        State {
-            name = "quickspike",
-            tags = { "attack", "canrotate", "busy"},
 
-            onenter = function(inst, target)
-                inst.components.locomotor:Stop()
-                inst.AnimState:PlayAnimation("atk_pre")
-                inst.components.timer:StartTimer("quickspike",math.random(6,10)) --AXE Queue up the next time the fire hound will spit fire again.
-                inst.AnimState:SetDeltaTimeMultiplier(.3)
-                
-                inst.icespikeready = false
-                inst.components.combat:SetRange(3,3) --AXE Reset the range back to normal
-                inst.sg.statemem.target = target ~= nil and target:IsValid() and target or inst.components.combat and inst.components.combat.target        
-            end,
-            
             timeline =
             {
-                TimeEvent(8 * FRAMES, function(inst)
-                    inst:SnowFX()
-                    if inst.sg.statemem.target and inst.sg.statemem.target:GetPosition() then
-                        inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
-                    end
-                end),
-                TimeEvent(16 * FRAMES, function(inst)
-                    inst:SnowFX()
-                    if inst.sg.statemem.target and inst.sg.statemem.target:GetPosition() then
-                        inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
-                    end
-                end),
+                TimeEvent(8 * FRAMES, QuickAttackFX),
+                TimeEvent(16 * FRAMES, QuickAttackFX),
                 TimeEvent(24 * FRAMES, function(inst)
+                    inst.sg.statemem.not_interrupted = true
                     inst.AnimState:SetDeltaTimeMultiplier(1)
-                    if inst.sg.statemem.target and inst.sg.statemem.target:GetPosition() then
-                        inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
-                        inst:IceSpike(inst.sg.statemem.target)
+                    local target = inst.sg.statemem.target
+                    if target and target:IsValid() then
+                        inst:ForceFacePoint(target:GetPosition())
+                        local isfire = inst.sg.statemem.isfire
+                        inst[isfire and "ShootFire" or "IceSpike"](inst, not isfire and target or nil)
                     end
-                    
                 end),
             },
-            
+
             onexit = function(inst) --AXE Incase it's taken from this state via freezing, or such
-                inst.AnimState:SetDeltaTimeMultiplier(1)
+                if not inst.sg.statemem.not_interrupted then
+                    inst.AnimState:SetDeltaTimeMultiplier(1)
+                end
             end,
+
             events =
             {
                 EventHandler("animover", function(inst) inst.sg:GoToState("idle") end),

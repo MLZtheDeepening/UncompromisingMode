@@ -4,21 +4,6 @@ local UMUpvalueHacker = GLOBAL.require("tools/um_upvaluehacker")
 local TheNet = GLOBAL.TheNet
 
 if TUNING.DSTU.WORTOXCHANGES then
-
-    
-    --------------------------------------------------------------------------------------------------------------------------------
-    -- [ Soul Changes, will eventually remove them after these lower-effort enemies have more nuance to killing a lot of them ] ----
-    --------------------------------------------------------------------------------------------------------------------------------
-    if TUNING.DSTU.BUTTERFLYWINGS_NERF == "stat_nerf" then
-        AddPrefabPostInitAny(function(inst)
-            if not GLOBAL.TheWorld.ismastersim then
-                return
-            end
-            if inst:HasTag("butterfly") then
-                inst:AddTag("soulless")
-            end
-        end)
-    end
     --------------------------------------------------------------------------------------------------------------------------------
     -- [ Soul Healing Changes ] ----------------------------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------------------------------------------    
@@ -101,6 +86,23 @@ if TUNING.DSTU.WORTOXCHANGES then
     --Override the healing function with a new one
     local wortox_soul_common = require("prefabs/wortox_soul_common")
     wortox_soul_common.DoHeal = UncompromisingSoulHeal
+
+    local _GetNumSouls = wortox_soul_common.GetNumSouls
+    wortox_soul_common.GetNumSouls = function(victim, ...)
+        return victim:HasTag("butterfly") and (math.random() > .5 and 1 or 0) or _GetNumSouls(victim, ...)
+    end
+
+    local _SpawnSoulsAt = wortox_soul_common.SpawnSoulsAt
+    wortox_soul_common.SpawnSoulsAt = function(victim, numsouls, ...)
+        if numsouls <= 0 then return end
+        return _SpawnSoulsAt(victim, numsouls, ...)
+    end
+
+    local _GiveSouls = wortox_soul_common.GiveSouls
+    wortox_soul_common.GiveSouls = function(inst, num, pos, ...)
+        if num <= 0 then return end
+        return _GiveSouls(inst, num, pos, ...)
+    end
 
     AddPrefabPostInit("wortox_soul", function(inst)
         if not GLOBAL.TheWorld.ismastersim then

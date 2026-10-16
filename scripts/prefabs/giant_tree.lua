@@ -354,45 +354,47 @@ local function OnNear(inst, player)
 end
 
 -----------------------------Workable handling
-local function on_chop(inst, chopper, remaining_chops)
-    if not (chopper ~= nil and chopper:HasTag("playerghost")) then
+local function WorkMultiplierFn(inst, worker, numworks)
+    return worker:HasAnyTag("epic", "antlion_sinkhole") and 0 or 1
+end
+
+local function on_chop(inst, worker, workleft, numworks)
+    if numworks > 0 then
         inst.SoundEmitter:PlaySound("dontstarve/wilson/use_axe_tree")
-    end
-    local phase = 0
-    if not (chopper:HasTag("epic") or chopper:HasTag("antlion_sinkhole")) then
+        local phase = 0
         local oldchops = inst.previouschops or 24
-        inst.previouschops = remaining_chops
-        if (oldchops + inst.partchops - remaining_chops) >= 1 then
-            local queuedchops = (oldchops + inst.partchops - remaining_chops)
-            for k = 1, (oldchops + inst.partchops - remaining_chops) do
+        inst.previouschops = workleft
+        if (oldchops + inst.partchops - workleft) >= 1 then
+            local queuedchops = (oldchops + inst.partchops - workleft)
+            for k = 1, (oldchops + inst.partchops - workleft) do
                 if inst:HasTag("infestedtree") then
-                    SpawnDebris(inst, chopper, infestedloots)
+                    SpawnDebris(inst, worker, infestedloots)
                 else
-                    SpawnDebris(inst, chopper, choploots)
-                    if (oldchops + inst.partchops - remaining_chops) - k < 1 and (oldchops + inst.partchops - remaining_chops) - k > 0 then
-                        inst.partchops = (oldchops + inst.partchops - remaining_chops) - k
+                    SpawnDebris(inst, worker, choploots)
+                    if (oldchops + inst.partchops - workleft) - k < 1 and (oldchops + inst.partchops - workleft) - k > 0 then
+                        inst.partchops = (oldchops + inst.partchops - workleft) - k
                     else
                         inst.partchops = 0
                     end
                 end
             end
-        elseif (oldchops - remaining_chops) < 1 then
-            inst.partchops = (oldchops - remaining_chops) --This accounts for characters like wes and our winona doing partial works
+        elseif oldchops - workleft < 1 then
+            inst.partchops = oldchops - workleft --This accounts for characters like wes and our winona doing partial works
         end
 
-        if remaining_chops >= 15 and remaining_chops < 20 then
+        if workleft >= 15 and workleft < 20 then
             phase = 1
         end
-        if remaining_chops >= 10 and remaining_chops < 15 then
+        if workleft >= 10 and workleft < 15 then
             phase = 1
         end
-        if remaining_chops >= 5 and remaining_chops < 10 then
+        if workleft >= 5 and workleft < 10 then
             phase = 2
         end
-        if remaining_chops > 0 and remaining_chops < 5 then
+        if workleft > 0 and workleft < 5 then
             phase = 3
         end
-        if remaining_chops == 0 or remaining_chops < 0 then
+        if workleft == 0 or workleft < 0 then
             phase = 4
         end
     end
@@ -420,44 +422,38 @@ local function CanShave(inst, shaver, shave_item)
     return inst.components.shaveable.prize_count > 0 and workable and workable:CanBeWorked()
 end
 
-local function TryAddShaveable(inst)
-    if inst.components.shaveable then
-        inst.components.shaveable.prize_count = 1
-    end
+local function SetShaveablePrizeCount(inst, count)
+    local shaveable = inst.components.shaveable
+    if shaveable then shaveable.prize_count = count or 1 end
 end
 
-local function on_chopped_down(inst, chopper)
-    if chopper:HasTag("epic") or chopper:HasTag("antlion_sinkhole") then
-        inst:AddComponent("workable")
-        inst.components.workable:SetWorkAction(ACTIONS.CHOP)
-        inst.components.workable:SetWorkLeft(inst.previouschops)
-        inst.components.workable:SetOnWorkCallback(on_chop)
-        inst.components.workable:SetOnFinishCallback(on_chopped_down)
-        if inst.components.timer:TimerExists("remoss") then
-            inst.AnimState:PlayAnimation("idle")
-        else
-            inst.AnimState:PlayAnimation("idle_moss_full")
-            TryAddShaveable(inst)
-        end
-    else
-        inst.previouschops = 0
-        inst.chopped = true
-        inst.SoundEmitter:PlaySound("dontstarve/forest/appear_wood")
-        inst.SoundEmitter:PlaySound("dontstarve/forest/treeCrumble", nil, .4)
-        inst:RemoveComponent("workable")
-        BringTheForestDown(inst, chopper)
+local function on_chopped_down(inst, worker)
+    inst.previouschops = 0
+    inst.chopped = true
+    inst.SoundEmitter:PlaySound("dontstarve/forest/appear_wood")
+    inst.SoundEmitter:PlaySound("dontstarve/forest/treeCrumble", nil, .4)
+    inst:RemoveComponent("workable")
+    BringTheForestDown(inst, worker)
 
-        if inst.components.shaveable then
-            inst.components.shaveable.prize_count = 0
-        end
+    SetShaveablePrizeCount(inst, 0)
 
-        inst.AnimState:PlayAnimation("idle_damaged")
-        inst.components.timer:StartTimer("regrow", TUNING.TOTAL_DAY_TIME * 3)
-        if inst.components.timer:TimerExists("remoss") then
-            inst.components.timer:StopTimer("remoss")
-        end
-        inst.components.timer:StartTimer("remoss", TUNING.TOTAL_DAY_TIME * 5)
+    inst.AnimState:PlayAnimation("idle_damaged")
+    inst.components.timer:StartTimer("regrow", TUNING.TOTAL_DAY_TIME * 3)
+    if inst.components.timer:TimerExists("remoss") then
+        inst.components.timer:StopTimer("remoss")
     end
+    inst.components.timer:StartTimer("remoss", TUNING.TOTAL_DAY_TIME * 5)
+end
+
+local function SetupWorkable(inst)
+    if not inst.components.workable then
+        local workable = inst:AddComponent("workable")
+        workable:SetWorkAction(ACTIONS.CHOP)
+        workable:SetWorkLeft(25)
+        workable:SetWorkMultiplierFn(WorkMultiplierFn)
+        workable:SetOnWorkCallback(on_chop)
+        workable:SetOnFinishCallback(on_chopped_down)
+	end
 end
 
 local function PickType(inst)
@@ -470,11 +466,9 @@ local function PickType(inst)
     if math.random() > .9 then
         inst.mossy = true
         inst.AnimState:PlayAnimation("idle_moss_full")
-        TryAddShaveable(inst)
+        SetShaveablePrizeCount(inst)
     else
-        if inst.components.shaveable then
-            inst.components.shaveable.prize_count = 0
-        end
+        SetShaveablePrizeCount(inst, 0)
         inst.components.timer:StartTimer("remoss", TUNING.TOTAL_DAY_TIME * 5)
     end
 end
@@ -484,7 +478,7 @@ local function AnimNext(inst)
         if inst.components.timer:TimerExists("remoss") then
             inst.AnimState:PlayAnimation("idle")
         else
-            --TryAddShaveable(inst)
+            --SetShaveablePrizeCount(inst)
             inst.AnimState:PlayAnimation("idle_moss_full")
         end
     else
@@ -501,7 +495,7 @@ local function PickBuild(inst)
         if inst.components.timer:TimerExists("remoss") then
             inst.AnimState:PlayAnimation("idle")
         else
-            TryAddShaveable(inst)
+            SetShaveablePrizeCount(inst)
             inst.AnimState:PlayAnimation("idle_moss_full")
         end
         local mult = 1
@@ -517,31 +511,22 @@ local function PickBuild(inst)
         PickBuild(inst)
     end
 end
------------------------------
-
 -----------------------------Regrowth Timer Handler
 local function Regrow(inst, data)
     if data.name == "regrow" then
         inst.chopped = false
-        inst:AddComponent("workable")
-        inst.components.workable:SetWorkAction(ACTIONS.CHOP)
-        inst.components.workable:SetWorkLeft(25)
-        inst.components.workable:SetOnWorkCallback(on_chop)
-        inst.components.workable:SetOnFinishCallback(on_chopped_down)
-
+        SetupWorkable(inst)
         PickBuild(inst)
     end
     if data.name == "remoss" then
         if inst.components.workable then
             inst.AnimState:PlayAnimation("idle_moss_full")
-            TryAddShaveable(inst)
+            SetShaveablePrizeCount(inst)
         else
             inst.components.timer:StartTimer("remoss", TUNING.TOTAL_DAY_TIME * 3) -- Tree isn't regrown yet, wait to regrow moss
         end
     end
 end
------------------------------
-
 ---------------------------------- Saving and loading
 local function OnSave(inst, data)
     data.previouschops = inst.previouschops
@@ -556,21 +541,11 @@ end
 local function OnLoad(inst, data)
     if data then
         inst.previouschops = data.previouschops
-        if data.chopped then
-            inst:RemoveComponent("workable")
-        end
-        if data.bankType then
-            inst.bankType = data.bankType
-        end
-        if data.infested then
-            inst.infested = data.infested
-        end
-        if data.reverse then
-            inst.reverse = true
-        end
-        if data.stretchx then
-            inst.stretchx = data.stretchx
-        end
+        if data.chopped then inst:RemoveComponent("workable") end
+        inst.bankType = data.bankType
+        inst.infested = data.infested
+        if data.reverse then inst.reverse = true end
+        inst.stretchx = data.stretchx
     else
         inst.previouschops = 25
     end
@@ -666,6 +641,8 @@ local function giant_treefn()
         return inst
     end
 
+    inst:AddComponent("inspectable")
+
     inst:DoTaskInTime(0, PickBuild)
 
     inst.players = {}
@@ -676,11 +653,7 @@ local function giant_treefn()
     playerprox:SetOnPlayerFar(OnFar)
     playerprox:SetOnPlayerNear(OnNear)
 
-    local workable = inst:AddComponent("workable")
-    workable:SetWorkAction(ACTIONS.CHOP)
-    workable:SetWorkLeft(25)
-    workable:SetOnWorkCallback(on_chop)
-    workable:SetOnFinishCallback(on_chopped_down)
+    SetupWorkable(inst)
 
     local shaveable = inst:AddComponent("shaveable")
     shaveable:SetPrize("um_moss", 0)
@@ -690,8 +663,6 @@ local function giant_treefn()
     inst:AddComponent("timer")
     inst:ListenForEvent("timerdone", Regrow)
 
-    inst:AddComponent("inspectable")
-    inst.previouschops = nil
 
     inst.partchops = 0
     inst.OnSave = OnSave

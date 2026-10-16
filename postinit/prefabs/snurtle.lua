@@ -1,7 +1,6 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------
-
 SetSharedLootTable('slurtly',
 {
     {'slurtleslime',  1.0},
@@ -9,12 +8,12 @@ SetSharedLootTable('slurtly',
     {'slurtlehat',    0.5},
 })
 
-
 local snails =
 {
     "slurtle",
     "snurtle"
 }
+
 for k, v in ipairs(snails) do
     env.AddPrefabPostInit(v, function(inst)
 		if inst.components.health then

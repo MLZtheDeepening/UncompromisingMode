@@ -214,8 +214,7 @@ local SLEEPREPEL_CANT_TAGS = {"player", "companion", "abigail", "shadowminion", 
 local NO_SHOVE_TAGS = {"stageusher", "toadstool"}
 local function Check_Bowling(inst, target)
     local x, y, z = inst.Transform:GetWorldPosition()
-    local ents = TheSim:FindEntities(x, y, z, 2, SLEEPREPEL_MUST_TAGS, SLEEPREPEL_CANT_TAGS)
-    for i, v in ipairs(ents) do
+    for i, v in ipairs(TheSim:FindEntities(x, y, z, 2, SLEEPREPEL_MUST_TAGS, SLEEPREPEL_CANT_TAGS)) do
         if inst.components.combat:CanTarget(v) and not inst.components.combat:IsAlly(v) then --(not target) or (target and v ~= target)
             v:AddTag("wixieshoved")
             SpawnPrefab("round_puff_fx_sm").Transform:SetPosition(v.Transform:GetWorldPosition())
@@ -1397,8 +1396,8 @@ table.insert(GLOBAL.FOODGROUP.OMNI.types,GLOBAL.FOODTYPE.LICHEN)
 AddPrefabPostInit("cutlichen", function(inst)
     if not _G.TheWorld.ismastersim then return end
 
-    inst:AddComponent("edible")
-    inst.components.edible.secondaryfoodtype = GLOBAL.FOODTYPE.LICHEN
+    local edible = inst.components.edible
+    if edible then edible.secondaryfoodtype = GLOBAL.FOODTYPE.LICHEN end
 end)
 
 local UMUpvalueHacker = require("tools/um_upvaluehacker")

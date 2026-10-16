@@ -65,7 +65,9 @@ local function NearPlayerBase(inst)
     end
 end
 
-local function CalcSanityAura(inst) return inst.components.combat.target ~= nil and TUNING.SANITYAURA_HUGE or TUNING.SANITYAURA_LARGE end
+local function CalcSanityAura(inst)
+    return inst.components.combat.target ~= nil and TUNING.SANITYAURA_HUGE or TUNING.SANITYAURA_LARGE
+end
 
 local function UpdateLavaeDamageTick(inst)
     local count = 0
@@ -112,7 +114,9 @@ local function RetargetFn(inst)
     return FindEntity(inst, radius * TARGET_DIST, function(guy) return inst.components.combat:CanTarget(guy) and not guy:HasTag("prey") and not guy:HasTag("smallcreature") and not guy:HasTag("antlion") and not guy:HasTag("moonglasscreature") end)
 end
 
-local function KeepTargetFn(inst, target) return inst.components.combat:CanTarget(target) and not target:HasTag("moonglasscreature") end
+local function KeepTargetFn(inst, target)
+    return inst.components.combat:CanTarget(target) and not target:HasTag("moonglasscreature")
+end
 
 local function OnEntitySleep(inst)
     --[[if ((not inst:NearPlayerBase() and inst.SeenBase and not inst.components.combat:TargetIs(ThePlayer))
@@ -287,6 +291,37 @@ local function OnCollide(inst, other)
     end
 end
 
+local function ClearRecentlyCharged(inst, other)
+    inst.recentlycharged[other] = nil
+end
+
+local function CanDoWorkOnOther(other)
+    local workable = other:IsValid() and other.components.workable
+    return workable and workable:CanBeWorked() and workable:GetWorkAction() ~= ACTIONS.NET
+end
+
+local function OnDestroyOther(inst, other)
+    if CanDoWorkOnOther(other) and not inst.recentlycharged[other] then
+        SpawnPrefab("collapse_small").Transform:SetPosition(other.Transform:GetWorldPosition())
+        if other.components.lootdropper then
+            other.components.lootdropper:SetLoot({})
+        end
+        other.components.workable:Destroy(inst)
+        if other:IsValid() and other.components.workable and other.components.workable:CanBeWorked() then
+            inst.recentlycharged[other] = true
+            inst:DoTaskInTime(3, ClearRecentlyCharged, other)
+        end
+    end
+end
+
+local function OnCollide(inst, other)
+    if other and CanDoWorkOnOther(other)
+        and Vector3(inst.Physics:GetVelocity()):LengthSq() >= 1
+        and not inst.recentlycharged[other] then
+        inst:DoTaskInTime(2 * FRAMES, OnDestroyOther, other)
+    end
+end
+
 local function OnSleep(inst)
     inst.SoundEmitter:KillSound("flying")
     inst.SoundEmitter:KillSound("vomitrumble")
@@ -294,13 +329,13 @@ local function OnSleep(inst)
     inst.SoundEmitter:KillSound("fireflying")
 end
 
-local function OnRemove(inst)
+--[[local function OnRemove(inst)
     TheWorld:PushEvent("mockflyremoved", inst)
     inst.SoundEmitter:KillSound("flying")
     inst.SoundEmitter:KillSound("vomitrumble")
     inst.SoundEmitter:KillSound("sleep")
     inst.SoundEmitter:KillSound("fireflying")
-end
+end]]
 
 local function OnKill(inst, data)
     if inst.components.combat and data and data.victim == inst.components.combat.target then
@@ -337,9 +372,13 @@ local function OnDead(inst)
     TheWorld:PushEvent("mockflykilled", inst)
 end
 
-local function CheckTarget(inst) inst:DoTaskInTime(10, CheckTarget) end
+local function CheckTarget(inst)
+    inst:DoTaskInTime(10, CheckTarget)
+end
 
-local function OnRemove(inst) TheWorld:PushEvent("mockflyremoved", inst) end
+local function OnRemove(inst)
+    TheWorld:PushEvent("mockflyremoved", inst)
+end
 
 local function SpawnLavae(inst)
     if not inst.SpawnedLavae then
@@ -550,11 +589,6 @@ local function fn(Sim)
 
     MakeCharacterPhysics(inst, 500, 2.5)
 
-    inst.Physics:SetCollisionCallback(OnCollide)
-
-    inst.OnEntitySleep = OnSleep
-    inst.OnRemoveEntity = OnRemove
-
     inst.AnimState:SetBank("moonmaw_dragonfly")
     inst.AnimState:SetBuild("moonmaw_dragonfly")
     -- anim:PlayAnimation("idle", true)
@@ -568,6 +602,7 @@ local function fn(Sim)
     inst:AddTag("scarytoprey")
     inst:AddTag("largecreature")
     inst:AddTag("moonglasscreature")
+    inst:AddTag("lunar_aligned")
     inst:AddTag("noepicmusic")
 
     --[[inst._musicdirty = net_event(inst.GUID, "alterguardian_phase1._musicdirty", "musicdirty")
@@ -580,13 +615,14 @@ local function fn(Sim)
         inst:DoPeriodicTask(1, PushMusic, 0)
     end
 
-    inst:AddTag("lunar_aligned")
-
     inst.entity:SetPristine()
 
     if not TheWorld.ismastersim then
         return inst
     end
+
+    inst.recentlycharged = {}
+    inst.Physics:SetCollisionCallback(OnCollide)
 
     --inst.SetNoMusic = SetNoMusic
 
@@ -686,6 +722,8 @@ local function fn(Sim)
 
     inst.OnSave = OnSave
     inst.OnLoad = OnLoad
+    inst.OnEntitySleep = OnSleep
+    --inst.OnRemoveEntity = OnRemove
 
     inst:SetStateGraph("SGmoonmaw_dragonfly")
     inst:SetBrain(brain)
@@ -703,6 +741,7 @@ local function fn(Sim)
     --
     inst:DoPeriodicTask(3, CheckPlayers)
     inst:DoPeriodicTask(10, PerEjectCheck)
+
     return inst
 end
 

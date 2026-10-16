@@ -296,15 +296,31 @@ end
 local function FindTreeToShake(inst)
     if inst.searching_for_tree then
         inst.searching_for_tree:Cancel()
+        inst.searching_for_tree = nil
     end
-    inst.searching_for_tree = nil
     DecideWhatTreeToBe(inst)
-    if inst.treetarget and not (inst.sg:HasStateTag("busy") or inst.sg:HasStateTag("ability")) then
+    if inst.treetarget and not inst.sg:HasAnyStateTag("busy", "ability") then
         inst.sg:GoToState("leaptotree_shake_pre")
     else
         inst.searching_for_tree = inst:DoTaskInTime(2, FindTreeToShake)
     end
 end
+
+local function PrepareTreeToShake(inst) -- Give a small delay
+    inst.should_taunt_health_thresh = true
+    if not inst.searching_for_tree then
+        if inst.lasttrigger then
+            if inst.components.health:GetPercent() < inst.lasttrigger then
+                inst.searching_for_tree = inst:DoTaskInTime(8, FindTreeToShake)
+            end
+        else
+            inst.searching_for_tree = inst:DoTaskInTime(8, FindTreeToShake)
+        end
+    end
+    inst.lasttrigger = inst.components.health:GetPercent()
+end
+
+local DIET = {FOODTYPE.MEAT, FOODTYPE.HORRIBLE}
 
 local function fn()
     local inst = CreateEntity()
@@ -333,6 +349,7 @@ local function fn()
     inst.AnimState:SetBuild("widow1")
     inst.AnimState:PlayAnimation("idle", true)
     inst.Transform:SetScale(1.5, 1.5, 1.5)
+
     inst.entity:SetPristine()
 
     if not TheWorld.ismastersim then
@@ -341,8 +358,8 @@ local function fn()
 
     inst:SetStateGraph("SGhoodedwidow")
 
-    inst:AddComponent("lootdropper")
-    inst.components.lootdropper:SetLoot(loot)
+    local lootdropper = inst:AddComponent("lootdropper")
+    lootdropper:SetLoot(loot)
 
     inst:AddComponent("drownable")
 
@@ -351,64 +368,48 @@ local function fn()
     inst.components.burnable.flammability = TUNING.SPIDER_FLAMMABILITY
 
     ------------------
-    inst:AddComponent("health")
-    inst.components.health:SetMaxHealth(TUNING.DSTU.WIDOW_HEALTH)
-    inst:AddComponent("healthtrigger")
+    local health = inst:AddComponent("health")
+    health:SetMaxHealth(TUNING.DSTU.WIDOW_HEALTH)
 
-    local function PrepareTreeToShake(inst) -- Give a small delay
-        inst.should_taunt_health_thresh = true
-        if not inst.searching_for_tree then
-            if inst.lasttrigger then
-                if inst.components.health:GetPercent() < inst.lasttrigger then
-                    inst.searching_for_tree = inst:DoTaskInTime(8, FindTreeToShake)
-                end
-            else
-                inst.searching_for_tree = inst:DoTaskInTime(8, FindTreeToShake)
-            end
-        end
-        inst.lasttrigger = inst.components.health:GetPercent()
-    end
-
-    inst.components.healthtrigger:AddTrigger(.75, PrepareTreeToShake)
-    inst.components.healthtrigger:AddTrigger(.5, PrepareTreeToShake)
-    inst.components.healthtrigger:AddTrigger(.25, PrepareTreeToShake)
+    local healthtrigger = inst:AddComponent("healthtrigger")
+    healthtrigger:AddTrigger(.75, PrepareTreeToShake)
+    healthtrigger:AddTrigger(.5, PrepareTreeToShake)
+    healthtrigger:AddTrigger(.25, PrepareTreeToShake)
 
     ------------------
     inst:AddComponent("knownlocations")
-    inst:AddComponent("combat")
-    inst.components.combat.battlecryenabled = false -- We want to taunt in only specific instances
-    inst.components.combat:SetRange(TUNING.SPIDERQUEEN_ATTACKRANGE)
-    inst.components.combat:SetDefaultDamage(150)
-    inst.components.combat.customdamagemultfn = function(inst, target)
-        return target:HasTag("player") and .5 or 1
-    end
-    inst.components.combat:SetAttackPeriod(3)
+
+    local combat = inst:AddComponent("combat")
+    combat.battlecryenabled = false -- We want to taunt in only specific instances
+    combat:SetRange(TUNING.SPIDERQUEEN_ATTACKRANGE)
+    combat:SetDefaultDamage(150)
+    combat.playerdamagepercent = .5
+    combat:SetAttackPeriod(3)
     inst.Retarget = Retarget
-    inst.components.combat:SetRetargetFunction(1, Retarget)
+    combat:SetRetargetFunction(1, Retarget)
     ------------------
 
-    inst:AddComponent("sanityaura")
-    inst.components.sanityaura.aurafn = CalcSanityAura
-
-    ------------------
-
-    inst:AddComponent("sleeper")
-    inst.components.sleeper:SetResistance(4)
-    ------------------
-
-    inst:AddComponent("locomotor")
-    inst.components.locomotor:SetSlowMultiplier(1)
-    inst.components.locomotor:SetTriggersCreep(false)
-    inst.components.locomotor.pathcaps = { ignorecreep = true }
-    inst.components.locomotor.walkspeed = 3
-    inst.components.locomotor.runspeed = 3
+    local sanityaura = inst:AddComponent("sanityaura")
+    sanityaura.aurafn = CalcSanityAura
 
     ------------------
 
-    inst:AddComponent("eater")
-    inst.components.eater:SetDiet({ FOODTYPE.MEAT }, { FOODTYPE.MEAT })
-    inst.components.eater:SetCanEatHorrible()
-    inst.components.eater.strongstomach = true -- can eat monster meat!
+    local sleeper = inst:AddComponent("sleeper")
+    sleeper:SetResistance(4)
+    ------------------
+
+    local locomotor = inst:AddComponent("locomotor")
+    locomotor:SetSlowMultiplier(1)
+    locomotor:SetTriggersCreep(false)
+    locomotor.pathcaps = { ignorecreep = true }
+    locomotor.walkspeed = 3
+    locomotor.runspeed = 3
+
+    ------------------
+
+    local eater = inst:AddComponent("eater")
+    eater:SetDiet(DIET, DIET)
+    eater.strongstomach = true -- can eat monster meat!
 
     ------------------
 
@@ -416,12 +417,12 @@ local function fn()
 
     inst:AddComponent("leader")
 
-    inst:AddComponent("groundpounder")
-    inst.components.groundpounder.destroyer = true
-    inst.components.groundpounder.damageRings = 0
-    inst.components.groundpounder.destructionRings = 2
-    inst.components.groundpounder.platformPushingRings = 2
-    inst.components.groundpounder.numRings = 3
+    local groundpounder = inst:AddComponent("groundpounder")
+    groundpounder.destroyer = true
+    groundpounder.damageRings = 0
+    groundpounder.destructionRings = 2
+    groundpounder.platformPushingRings = 2
+    groundpounder.numRings = 3
     ------------------
     inst.investigated = false
     inst.Reset = Reset
