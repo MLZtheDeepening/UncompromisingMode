@@ -10,7 +10,7 @@ end
 local function GetAttackedPostInit(self, fn)
 	local _GetAttackedOrInternal = self[fn]
 	self[fn] = function(self, attacker, damage, weapon, stimuli, spdamage, ...)
-        --[[if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and self.inst.UMSlipAway and self.inst:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}, true) then
+        --[[if TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and from_doattack and self.inst.UMSlipAway and self.inst:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}, true) then
             if attacker and weapon and weapon:IsValid() then
                 attacker:PushEvent("um_attacker_attacked_pst", {weapon = weapon})
             end
@@ -168,6 +168,27 @@ env.AddComponentPostInit("combat", function(self)
     local AREA_EXCLUDE_TAGS = {"INLIMBO", "notarget", "noattack", "flight", "invisible"}
     local _DoAttack = self.DoAttack
     function self:DoAttack(targ, weapon, projectile, stimuli, instancemult, instrangeoverride, instpos, ...)
+        --[[local sliptarget = TUNING.DSTU.BUTTERFLYWINGS_NERF == "slippery" and (targ or self.target)
+        if sliptarget and sliptarget.UMSlipAway then
+            if instrangeoverride then self.temprange = instrangeoverride end
+            if instpos then self.temppos = instpos end
+            if weapon == nil then weapon = self:GetWeapon() end
+            if stimuli == nil then
+                local weapon_cmp = weapon and weapon.components.weapon
+                if weapon_cmp then
+                    if weapon_cmp.overridestimulifn then
+                        stimuli = weapon_cmp.overridestimulifn(weapon, self.inst, targ)
+                    end
+                    if stimuli == nil and weapon_cmp.stimuli == "electric" then
+                        stimuli = "electric"
+                    end
+                end
+                if stimuli == nil and self.inst.components.electricattacks then
+                    stimuli = "electric"
+                end
+            end
+            if self:CanHitTarget(sliptarget, weapon) and sliptarget:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}, true) then return end
+        end]]
         if self.um_areahit and not self.um_ignoreareahit then
             self.ignorehitrange = true
             self.um_ignoreareahit = true
