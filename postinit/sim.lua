@@ -173,10 +173,11 @@ local TheSimMetaTable = getmetatable(TheSim).__index
 local _FindEntities = TheSim.FindEntities
 function TheSimMetaTable:FindEntities(x, y, z, radius, musttags, canttags, oneoftags, ...)
     local ret = _FindEntities(self, x, y, z, radius, musttags, canttags, oneoftags, ...)
-    local data = UMSimTempOverride.data
-    if data then
-        UMSimTempOverride.data = nil
-        ret = data.fn(ret, data.inst)
+    local fn = UMSimTempOverride and UMSimTempOverride.fn
+    if fn then
+        local inst = UMSimTempOverride.inst
+        UMSimTempOverride.fn, UMSimTempOverride.inst = nil, nil
+        ret = fn(ret, inst)
     end
     return ret
 end
