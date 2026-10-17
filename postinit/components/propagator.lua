@@ -17,7 +17,7 @@ env.AddComponentPostInit("propagator", function(self)
     function self:OnUpdate(dt, ...)
         local damager = self.inst.um_damager and self.inst.um_damager:IsValid() and self.inst.um_damager
         if damager and self.spreading and self.damages then
-            UMSimTempOverride.data = {fn = PreventAllyFireDamage, inst = damager}
+            UMSimTempOverride.fn, UMSimTempOverride.inst = PreventAllyFireDamage, damager
         end
         local propagaterange_damagerange
         if TheWorld.state.iswinter and not self.inst.sg then
@@ -30,7 +30,8 @@ env.AddComponentPostInit("propagator", function(self)
             self.propagaterange = propagaterange_damagerange.propagaterange
             self.damagerange = propagaterange_damagerange.damagerange
         end
-        if UMSimTempOverride.data then UMSimTempOverride.data = nil end
+        if UMSimTempOverride.fn then UMSimTempOverride.fn = nil end
+        if UMSimTempOverride.inst then UMSimTempOverride.inst = nil end
         return ret
     end
 end)

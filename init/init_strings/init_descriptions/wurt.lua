@@ -584,13 +584,13 @@ DESCRIBE.UM_BOATBOTTLE = {
     EMPTY = "How get it out now? Glorp."
 }
 
---[[ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {
+ANNOUNCE.ANNOUNCE_BUTTERFLY_SLIP = {
     "Hee-hee, chasing is fun.",
     "Stop moving! Wanna catch you!",
     "Should try a sneak attack, florp.",
     "Glurph, get back here!",
     "Can't keep flying forever, flort."
-}]]
+}
 
 DESCRIBE.WATHOM_CORPSE = "Florp! He bubbling!"
 
