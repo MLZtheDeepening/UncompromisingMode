@@ -392,7 +392,7 @@ local states =
 
     State{
         name = "attack",
-        tags = {"attack", "busy", "canrotate"},
+        tags = {"attack", "busy"},
 
         onenter = function(inst)
             if not inst.flame_on or not inst.fire_build then
@@ -641,7 +641,7 @@ local states =
 
         State{
             name = "pre_shoot",
-            tags = {"busy", "canrotate"},
+            tags = {"busy"},
 
             onenter = function(inst, target)
                 inst.Physics:Stop()
@@ -666,7 +666,7 @@ local states =
 
         State{
             name = "flamethrower",
-            tags = {"attack", "canrotate", "busy"},
+            tags = {"attack", "busy"},
 
             onenter = function(inst)
                 local target = inst.components.combat.target ~= nil and inst.components.combat.target or nil
@@ -699,7 +699,6 @@ local states =
                 if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
                     inst.sg.statemem.inkpos = Vector3(inst.sg.statemem.target.Transform:GetWorldPosition())
                     inst:LaunchProjectile(inst.sg.statemem.target)
-                    
                 end
             end),
             TimeEvent(58 * FRAMES, function(inst)
@@ -784,7 +783,7 @@ local states =
 
         State{
             name = "spin_pre",
-            tags = {"busy", "attack", "canrotate"},
+            tags = {"busy", "attack"},
 
             onenter = function(inst)
                 local target = inst.components.combat.target ~= nil and inst.components.combat.target or nil
@@ -808,7 +807,7 @@ local states =
         },
         State{
             name = "spin_pre2",
-            tags = {"busy", "attack", "canrotate"},
+            tags = {"busy", "attack"},
 
             onenter = function(inst)
                 local target = inst.components.combat.target ~= nil and inst.components.combat.target or nil
@@ -832,7 +831,7 @@ local states =
 
         State{
             name = "spin_loop",
-            tags = {"busy", "spinning", "attack", "canrotate"},
+            tags = {"busy", "spinning", "attack"},
 
             onenter = function(inst)
                 inst.AnimState:PlayAnimation("charge")
@@ -841,8 +840,7 @@ local states =
                 local fx = SpawnPrefab("mossling_spin_fx")
                 fx.entity:SetParent(inst.entity)
                 fx.Transform:SetPosition(0, .1, 0)
-                inst.TrailFire = inst:DoPeriodicTask(2.3 * FRAMES,
-                function(inst)
+                inst.TrailFire = inst:DoPeriodicTask(2.3 * FRAMES, function(inst)
                     LightningStrike(inst)
                 end)
             end,
