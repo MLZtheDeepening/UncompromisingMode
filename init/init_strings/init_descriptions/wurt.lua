@@ -147,7 +147,11 @@ DESCRIBE.SALTPACK = "Glargh! Eyes on fire!!"
 DESCRIBE.SKELETONMEAT = "Glurph, don't wanna hold this for long."
 DESCRIBE.CHIMP = DESCRIBE.MONKEY
 DESCRIBE.SWILSON = "Glorp! Funny hair man betray?!"
-DESCRIBE.UM_VAMPIREBAT = "Grrr, bigger bat!"
+DESCRIBE.UM_VAMPIREBAT =
+{
+    GENERIC = "Grrr, bigger bat!",
+    ACID = DESCRIBE.BAT.ACID, -- in acid form
+}
 
 -- Swampyness
 DESCRIBE.RICEPLANT = "Yummy marsh plant!"
