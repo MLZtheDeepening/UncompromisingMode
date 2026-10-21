@@ -18,30 +18,24 @@ ANNOUNCE.UM_WALTER_PENALTY_HEAL = { --walter_only
 
 ANNOUNCE.DREADEYE_SPOOKED = "Hey! Don't sneak up one me like that!"
 ANNOUNCE.ANNOUNCE_HARDCORE_RES = "You need my help! And your body..."
-ANNOUNCE.ANNOUNCE_WINONAGEN =
-"I haven't gotten my \"putting rocks in machines\" badge yet."
+ANNOUNCE.ANNOUNCE_WINONAGEN = "I haven't gotten my \"putting rocks in machines\" badge yet."
 ANNOUNCE.ANNOUNCE_RATRAID = "Sounds like rats!"
-ANNOUNCE.ANNOUNCE_RATRAID_SPAWN =
-"Everyone, tuck your pants into your socks! Quick!"
+ANNOUNCE.ANNOUNCE_RATRAID_SPAWN = "Everyone, tuck your pants into your socks! Quick!"
 ANNOUNCE.ANNOUNCE_RATRAID_OVER = "They're taking our gear away!"
 ANNOUNCE.ANNOUNCE_ACIDRAIN = {
-    "Ow! The rain stings!", "I thought *a little water* never hurt anybody!",
+    "Ow! The rain stings!",
+    "I thought *a little water* never hurt anybody!",
     "Ah! My skin! I need shelter!"
 }
 ANNOUNCE.ANNOUNCE_TOADSTOOLED = "I've never seen caps like those before!"
 -- FoodBuffs
 ANNOUNCE.ANNOUNCE_ATTACH_BUFF_LESSERELECTRICATTACK = "Call me Electro-Boy!"
 ANNOUNCE.ANNOUNCE_ATTACH_BUFF_ELECTRICRETALIATION = "Call me Zap-Man!"
-ANNOUNCE.ANNOUNCE_ATTACH_BUFF_FROZENFURY =
-"I've got my mountain hikers badge, a little cold is nothing!"
-ANNOUNCE.ANNOUNCE_ATTACH_BUFF_VETCURSE =
-"I knew I shouldn't have, but I did it anyways."
-ANNOUNCE.ANNOUNCE_DETACH_BUFF_LESSERELECTRICATTACK =
-"(Sigh). Guess I'm just Walter-Boy now..."
-ANNOUNCE.ANNOUNCE_DETACH_BUFF_ELECTRICRETALIATION =
-"(Sigh). Guess I'm just Walter-Boy now..."
-ANNOUNCE.ANNOUNCE_DETACH_BUFF_FROZENFURY =
-"I prefer my regular temperature anyway."
+ANNOUNCE.ANNOUNCE_ATTACH_BUFF_FROZENFURY = "I've got my mountain hikers badge, a little cold is nothing!"
+ANNOUNCE.ANNOUNCE_ATTACH_BUFF_VETCURSE = "I knew I shouldn't have, but I did it anyways."
+ANNOUNCE.ANNOUNCE_DETACH_BUFF_LESSERELECTRICATTACK = "(Sigh). Guess I'm just Walter-Boy now..."
+ANNOUNCE.ANNOUNCE_DETACH_BUFF_ELECTRICRETALIATION = "(Sigh). Guess I'm just Walter-Boy now..."
+ANNOUNCE.ANNOUNCE_DETACH_BUFF_FROZENFURY = "I prefer my regular temperature anyway."
 -- FoodBuffs
 
 -- CaliforniaKing
@@ -52,16 +46,11 @@ DESCRIBE.CALIFORNIAKING = "I'd dare Wortox to finish the whole thing!"
 DESCRIBE.FLORAL_BANDAGE = "This stuff's potent!"
 
 ANNOUNCE.ANNOUNCE_RNEFOG = "ooOOOOoo, it's getting VERY spooky now!"
-DESCRIBE.UM_RAT =
-"I'd share, but they seem more interested in just TAKING our stuff."
-DESCRIBE.UM_RATHERD =
-"A Pine Tree Pioneer never enters a rat den head first!"
-DESCRIBE.UM_RATBURROW =
-"A Pine Tree Pioneer never enters a rat den head first!"
-DESCRIBE.UM_WINKYBURROW =
-"Wow! She can dig holes just as good as Woby!"
-DESCRIBE.UM_WINKYHOMEBURROW =
-"She puts everything in there, I hope she doesn't mind sharing."
+DESCRIBE.UM_RAT = "I'd share, but they seem more interested in just TAKING our stuff."
+DESCRIBE.UM_RATHERD = "A Pine Tree Pioneer never enters a rat den head first!"
+DESCRIBE.UM_RATBURROW = "A Pine Tree Pioneer never enters a rat den head first!"
+DESCRIBE.UM_WINKYBURROW = "Wow! She can dig holes just as good as Woby!"
+DESCRIBE.UM_WINKYHOMEBURROW = "She puts everything in there, I hope she doesn't mind sharing."
 
 DESCRIBE.WINKY = {
     GENERIC = "Woah! Are you a were-rat, %s?",
@@ -93,55 +82,51 @@ DESCRIBE.RATPOISON = "I hope nothing friendly gets into it..."
 
 DESCRIBE.MONSTERSMALLMEAT = "Sorry Woby, looks like scraps for dinner..."
 DESCRIBE.COOKEDMONSTERSMALLMEAT = "I'm doing my best with what I've got."
-DESCRIBE.MONSTERSMALLMEAT_DRIED =
-"Woby's favorite, just in smaller bite size chunks."
+DESCRIBE.MONSTERSMALLMEAT_DRIED = "Woby's favorite, just in smaller bite size chunks."
 
-DESCRIBE.UM_MONSTEREGG =
-"Maybe Woby would eat it? I hope she doesn't mind the shell..."
+DESCRIBE.UM_MONSTEREGG = "Maybe Woby would eat it? I hope she doesn't mind the shell..."
 DESCRIBE.UM_MONSTEREGG_COOKED = "I was hoping something cool would hatch."
 
 DESCRIBE.MUSHROOMSPROUT_OVERWORLD = "I've never seen caps like those before!"
-DESCRIBE.TOADLING =
-"He could swallow me whole... I think I'll keep my distance."
+DESCRIBE.TOADLING = "He could swallow me whole... I think I'll keep my distance."
 
 DESCRIBE.GASMASK = "Smelly safety first!"
 DESCRIBE.MOCK_DRAGONFLY = DESCRIBE.DRAGONFLY
 DESCRIBE.MOTHERGOOSE = DESCRIBE.MOOSE
-DESCRIBE.UM_SPIDERQUEENCORPSE =
-"I think the spiders will manage fine without a queen."
+DESCRIBE.UM_SPIDERQUEENCORPSE = "I think the spiders will manage fine without a queen."
 ANNOUNCE.ANNOUNCE_SNEEZE = "ooAaaAGH-CHU!"
 ANNOUNCE.ANNOUNCE_HAYFEVER = "My allergies are acting up again!"
 ANNOUNCE.ANNOUNCE_HAYFEVER_OFF = "Back to my regular level of allergies."
 ANNOUNCE.ANNOUNCE_FIREFALL = {
     "I get the feeling we should all review fire safety again!",
-    "The grounds getting hot!", "Just keep calm!"
+    "The grounds getting hot!",
+    "Just keep calm!"
 }
 ANNOUNCE.ANNOUNCE_ROOTING = "Creeping vines! I can chop them!"
 ANNOUNCE.ANNOUNCE_SNOWSTORM = "My instincts tell me there's a storm coming!"
 ANNOUNCE.SHADOWTALKER = {
-    "I MUST PROTECT HER", "I SHOULDN'T HAVE DONE IT", "I CAN'T GIVE UP",
+    "I MUST PROTECT HER",
+    "I SHOULDN'T HAVE DONE IT",
+    "I CAN'T GIVE UP",
     "I AM AFRAID"
 }
 ANNOUNCE.ANNOUNCE_OVER_EAT = {
     STUFFED = "A Pinetree Pioneer never wastes food, even when stuffed...",
     OVERSTUFFED = "This much food is a bad idea!"
 }
-DESCRIBE.UM_SAND =
-"make fun of me if I forget to change this if sand is reimplemented."
+DESCRIBE.UM_SAND = "make fun of me if I forget to change this if sand is reimplemented."
 DESCRIBE.UM_SANDHILL = "I will not make a mountain out of a sandhill."
 DESCRIBE.SNOWPILE = "A shovel would help against frostbite when clearing these!"
 DESCRIBE.SNOWGOGGLES = "They're a bit big, but they're warm!"
 
-DESCRIBE.SNOWMONG =
-"Big burrowing bugs and beetles bite back big burrowing bugs and beagles-- aww..."
+DESCRIBE.SNOWMONG = "Big burrowing bugs and beetles bite back big burrowing bugs and beagles-- aww..."
 DESCRIBE.SHOCKWORM = "Don't touch it! It's a living electrical hazard!"
 DESCRIBE.ZASPBERRY = "This berry has quite the shocking taste... heh."
 DESCRIBE.ZASPBERRYPARFAIT = "Oh boy, dessert!"
 DESCRIBE.ICEBOOMERANG = "No Woby, don't fetch this one!"
 DESCRIBE.MINOTAUR_BOULDER = "Watch out for land slides!"
 DESCRIBE.MINOTAUR_BOULDER_BIG = "That one could hurt it!"
-DESCRIBE.VETERANSHRINE =
-"I know it's a bad idea, but I want to investigate further!"
+DESCRIBE.VETERANSHRINE = "I know it's a bad idea, but I want to investigate further!"
 DESCRIBE.VET_SKULL = "What do you think, Woby? Undead? Or just regular dead?"
 DESCRIBE.UM_BOSS_SOUL = "Have you come back to haunt us? Cool!"
 DESCRIBE.UM_DARK_VESTIGES = "I don't know what it is, but it's cool!"
@@ -155,29 +140,28 @@ DESCRIBE.SPIDER_TRAPDOOR = "I told you!"
 DESCRIBE.TRAPDOOR = "Careful, some spiders use these as hiding places!"
 DESCRIBE.HOODEDTRAPDOOR = "Remember the spiders!"
 DESCRIBE.WICKER_TENTACLE = "I think it's poisoned, wish I could help..."
-DESCRIBE.HONEY_LOG =
-"A Pine Tree Pioneer knows better than to try and eat yourself."
+DESCRIBE.HONEY_LOG = "A Pine Tree Pioneer knows better than to try and eat yourself."
 
 DESCRIBE.BUSHCRAB = "A perfect disguise! You sure fooled me!"
 DESCRIBE.LAVAE2 = DESCRIBE.LAVAE
 DESCRIBE.DISEASECUREBOMB = "A little home made recipe, courtesy of nature!"
-DESCRIBE.RAT_TAIL =
-"I once saw a girl make a necklace out of these... I think I'll pass."
+DESCRIBE.RAT_TAIL = "I once saw a girl make a necklace out of these... I think I'll pass."
 DESCRIBE.SHROOM_SKIN_FRAGMENT = "I should stitch these together!"
 DESCRIBE.AIR_CONDITIONER = "Are we sure inhaling mushrooms is a good idea?"
 DESCRIBE.SPOREPACK = "Anything can be useful if you have the know how!"
-DESCRIBE.SALTPACK =
-"This will take care of the snow piles, though I prefer to do things myself!"
+DESCRIBE.SALTPACK = "This will take care of the snow piles, though I prefer to do things myself!"
 
 
-DESCRIBE.SKELETONMEAT =
-"I... I don't like stories about people at their most desperate..."
+DESCRIBE.SKELETONMEAT = "I... I don't like stories about people at their most desperate..."
 DESCRIBE.CHIMP = DESCRIBE.MONKEY
 DESCRIBE.SWILSON = "Woah! Wilson, what happened to you?!"
-DESCRIBE.UM_VAMPIREBAT = "You don't look like a vampire at all!"
+DESCRIBE.UM_VAMPIREBAT =
+{
+    GENERIC = "You don't look like a vampire at all!",
+    ACID = DESCRIBE.BAT.ACID, -- in acid form
+}
 DESCRIBE.CRITTERLAB_REAL = DESCRIBE.CRITTERLAB
-DESCRIBE.CRITTERLAB_REAL_BROKEN =
-"We can make a mini animal shelter with some moon rocks!"
+DESCRIBE.CRITTERLAB_REAL_BROKEN = "We can make a mini animal shelter with some moon rocks!"
 DESCRIBE.WALRUS_CAMP_SUMMER = DESCRIBE.WALRUS_CAMP
 DESCRIBE.CHARLIEPHONOGRAPH_100 = DESCRIBE.MAXWELLPHONOGRAPH
 DESCRIBE.BUGZAPPER = "I was the best flyswatter back at camp."
@@ -192,8 +176,7 @@ DESCRIBE.SUNGLASSES = "Nice!"
 
 DESCRIBE.STUMPLING = "Woah! Do you see that, Woby?"
 DESCRIBE.BIRCHLING = DESCRIBE.STUMPLING
-DESCRIBE.MOON_TEAR =
-"Far away from home, huh? Woby and I will keep you company!"
+DESCRIBE.MOON_TEAR = "Far away from home, huh? Woby and I will keep you company!"
 DESCRIBE.SHADOW_CROWN = "A crown? A Pinetree Pioneer must stay humble!"
 DESCRIBE.UM_SHADOW_AXE = "I think someone's copying me."
 DESCRIBE.POLLENMITEDEN = "These little guys are spreading fast!"
@@ -223,8 +206,7 @@ DESCRIBE.PITCHERPLANT = "Is something moving in there?"
 DESCRIBE.APHID = "It's fuzzy!"
 DESCRIBE.NYMPH = "I wonder what they're doing?"
 DESCRIBE.GIANT_TREE_INFESTED = "Get out of there!"
-DESCRIBE.GIANT_BLUEBERRY =
-"Good thing a Pinetree Pioneer's outfit is resistant to stains!"
+DESCRIBE.GIANT_BLUEBERRY = "Good thing a Pinetree Pioneer's outfit is resistant to stains!"
 DESCRIBE.BLUEBERRYPANCAKES = "Ah, sweet eats!"
 DESCRIBE.DEVILSFRUITCAKE = "Sorry Woby, chocolate is bad for dogs!"
 DESCRIBE.SIMPSALAD = "A Pinetree Pioneer always eats his... er... purples!"
@@ -235,8 +217,7 @@ DESCRIBE.WIDOWSHEAD = "Don't worry Woby, it's me!"
 DESCRIBE.HOODED_MUSHTREE_TALL = DESCRIBE.MUSHTREE_TALL
 DESCRIBE.HOODED_MUSHTREE_MEDIUM = DESCRIBE.MUSHTREE_MEDIUM
 DESCRIBE.HOODED_MUSHTREE_SMALL = DESCRIBE.MUSHTREE_SMALL
-DESCRIBE.WATERMELON_LANTERN =
-"I've heard of pumpkin heads before, but never melon heads!"
+DESCRIBE.WATERMELON_LANTERN = "I've heard of pumpkin heads before, but never melon heads!"
 
 -- Viperstuff Quotes
 DESCRIBE.VIPERWORM = "I wonder how it's making those!"
@@ -253,13 +234,11 @@ DESCRIBE.BLUEBERRYPLANT = {
 DESCRIBE.ANTIHISTAMINE = "It'll keep my allergies from flaring up!"
 ANNOUNCE.CURSED_ITEM_EQUIP = "OWWW! First aid please!"
 DESCRIBE.VETSITEM = "Are more curses required? I hope so!"
-DESCRIBE.SCREECHER_TRINKET =
-"Our Scout Masters told us to keep away from symbols like this."
+DESCRIBE.SCREECHER_TRINKET = "Our Scout Masters told us to keep away from symbols like this."
 ACTIONFAIL.GIVE.NOTNIGHT = "I think moon power works best when the moon is around."
 
 DESCRIBE.MAGMAHOUND = "You're not supposed to play with fire!"
-DESCRIBE.LIGHTNINGHOUND =
-"This isn't normal lightning, this is ADVANCED lightning!"
+DESCRIBE.LIGHTNINGHOUND = "This isn't normal lightning, this is ADVANCED lightning!"
 DESCRIBE.SPOREHOUND = "Get away Woby! He might be contagious!"
 DESCRIBE.GLACIALHOUND = "Cool friend, Woby!"
 DESCRIBE.RNESKELETON = "Hello! What story led you to be like that?"
@@ -289,10 +268,8 @@ DESCRIBE.CAVE_EXIT_SUNKDECID = DESCRIBE.CAVE_EXIT
 DESCRIBE.ANCIENT_AMULET_RED = "I would still like to avoid being hurt."
 DESCRIBE.UM_BEAR_TRAP = "Normally these are meant for, uh, bears."
 DESCRIBE.UM_BEAR_TRAP_OLD = "Who left their gear out like this?"
-DESCRIBE.UM_BEAR_TRAP_EQUIPPABLE_TOOTH =
-"Normally these are meant for, uh, bears."
-DESCRIBE.UM_BEAR_TRAP_EQUIPPABLE_GOLD =
-"Normally these are meant for, uh, bears."
+DESCRIBE.UM_BEAR_TRAP_EQUIPPABLE_TOOTH = "Normally these are meant for, uh, bears."
+DESCRIBE.UM_BEAR_TRAP_EQUIPPABLE_GOLD = "Normally these are meant for, uh, bears."
 DESCRIBE.CORNCAN = "Oh boy! Corn!"
 DESCRIBE.SKULLCHEST_CHILD = "Wortox popped out of it once!"
 
@@ -307,8 +284,7 @@ DESCRIBE.ORANGEGEM_CRACKED = DESCRIBE.ORANGEGEM .. "\nIt's all carved up!"
 DESCRIBE.GREENGEM_CRACKED = DESCRIBE.GREENGEM .. "\nIt's all carved up!"
 DESCRIBE.YELLOWGEM_CRACKED = DESCRIBE.YELLOWGEM .. "\nIt's all carved up!"
 DESCRIBE.PURPLEGEM_CRACKED = DESCRIBE.PURPLEGEM .. "\nIt's all carved up!"
-DESCRIBE.OPALPRECIOUSGEM_CRACKED = DESCRIBE.OPALPRECIOUSGEM ..
-    "\nIt's all carved up!"
+DESCRIBE.OPALPRECIOUSGEM_CRACKED = DESCRIBE.OPALPRECIOUSGEM .. "\nIt's all carved up!"
 
 DESCRIBE.RED_MUSHED_ROOM = "I'm not sure it's any better mushed."
 DESCRIBE.GREEN_MUSHED_ROOM = "I'm not sure it's any better mushed."
@@ -333,8 +309,7 @@ DESCRIBE.DEERCLOPS_BARRIER = "Some of the ice looks weaker."
 
 DESCRIBE.MOONMAW_DRAGONFLY = "Look at all of those sharp edges!"
 DESCRIBE.MOONMAW_LAVAE = "Very sharp, and very fast!"
-DESCRIBE.SNAPPERTURTLE =
-"Look! A snapping turtle! These guy's can easily snap your finger off!"
+DESCRIBE.SNAPPERTURTLE = "Look! A snapping turtle! These guy's can easily snap your finger off!"
 DESCRIBE.SNAPPERTURTLEBABY = "Don't underestimate those jaw- WOBY NO!"
 DESCRIBE.SNAPPERTURTLENEST = "Looks like they nest here!"
 DESCRIBE.GLASS_SCALES = "I've never seen anything like it!"
@@ -370,8 +345,7 @@ DESCRIBE.PIED_RAT = "Keep it down, you might hurt Woby's ears!"
 DESCRIBE.PIED_PIPER_FLUTE = "Woby doesn't want me to play it."
 DESCRIBE.UM_PACKRAT = "Whoa, he could be a great Pinetree Pioneer!"
 
-ANNOUNCE.ANNOUNCE_PORTABLEBOAT_SINK =
-"I'd better find some solid ground before this thing pops!"
+ANNOUNCE.ANNOUNCE_PORTABLEBOAT_SINK = "I'd better find some solid ground before this thing pops!"
 
 ACTIONFAIL.CHARGE_FROM = {
     NOT_ENOUGH_CHARGE = "Does it need a new pair of batteries?",
@@ -384,20 +358,14 @@ ANNOUNCE.ANNOUNCE_CHARGE_SUCCESS_ELECTROCUTED =
 
 ----UNDER THE WEATHER----
 
-DESCRIBE.WINONA_TOOLBOX =
-"I wonder what kind of gadgets and do-hickeys are inside."
+DESCRIBE.WINONA_TOOLBOX = "I wonder what kind of gadgets and do-hickeys are inside."
 ACTIONFAIL.WINONATOOLBOX = "I don't have a badge for this yet."
-DESCRIBE.WINONA_CATAPULT_ITEM_UM =
-"Machines aren't covered in the Pinetree Pioneers."
-DESCRIBE.WINONA_SPOTLIGHT_ITEM_UM =
-"Machines aren't covered in the Pinetree Pioneers."
-DESCRIBE.WINONA_BATTERY_LOW_ITEM_UM =
-"Machines aren't covered in the Pinetree Pioneers."
-DESCRIBE.WINONA_BATTERY_HIGH_ITEM_UM =
-"Machines aren't covered in the Pinetree Pioneers."
+DESCRIBE.WINONA_CATAPULT_ITEM_UM = "Machines aren't covered in the Pinetree Pioneers."
+DESCRIBE.WINONA_SPOTLIGHT_ITEM_UM = "Machines aren't covered in the Pinetree Pioneers."
+DESCRIBE.WINONA_BATTERY_LOW_ITEM_UM = "Machines aren't covered in the Pinetree Pioneers."
+DESCRIBE.WINONA_BATTERY_HIGH_ITEM_UM = "Machines aren't covered in the Pinetree Pioneers."
 DESCRIBE.POWERCELL = "Is this safe?"
-DESCRIBE.WINONA_UPGRADEKIT_ELECTRICAL =
-"It'd be more useful powering something."
+DESCRIBE.WINONA_UPGRADEKIT_ELECTRICAL = "It'd be more useful powering something."
 DESCRIBE.MINERHAT_ELECTRICAL = "Don't bite this little electric box thing, okay, girl? It might hurt you!"
 DESCRIBE.LANTERN_ELECTRICAL = "A reliable light source is essential for any camping trip!"
 DESCRIBE.OCEAN_SPEAKER = "I wonder if Woby can hear its frequency?"
@@ -421,11 +389,9 @@ DESCRIBE.ROCKJAWLEATHER = "Woah, genuine shark skin."
 DESCRIBE.EYEOFTERROR_MINI_ALLY = "I spy with my friendly eyes..."
 DESCRIBE.EYEOFTERROR_MINI_GROUNDED_ALLY = DESCRIBE.EYEOFTERROR_MINI_GROUNDED
 
-DESCRIBE.STUFFED_PEEPER_POPPERS =
-"If I close my eyes and swallow, maybe it will taste better!"
+DESCRIBE.STUFFED_PEEPER_POPPERS = "If I close my eyes and swallow, maybe it will taste better!"
 DESCRIBE.UM_DEVILED_EGGS = "It's pretty fowl! Get it? ...You get it."
-DESCRIBE.LUSH_ENTRANCE =
-"I'm not sure I want to go down there just yet, Woby..."
+DESCRIBE.LUSH_ENTRANCE = "I'm not sure I want to go down there just yet, Woby..."
 DESCRIBE.CRITTER_FIGGY = "Woby wants to play with you, Figgy!"
 DESCRIBE.GIANT_TREE_BIRDNEST = "Woby, leave those eggs alone!" -- Woby you bitch don't eat the eggsssss
 ACTIONFAIL.UPGRADE.NOT_HARVESTED = "Always keep your equipment clean and tidy!"

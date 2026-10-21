@@ -149,10 +149,13 @@ DESCRIBE.SALTPACK = "Would anyone mind if I use this salt?"
 DESCRIBE.SKELETONMEAT = "Some dishes probably shouldn't be made."
 DESCRIBE.CHIMP = DESCRIBE.MONKEY
 DESCRIBE.SWILSON = "He's looking to make chopped liver!"
-DESCRIBE.UM_VAMPIREBAT = "I assure you, I taste horrible!"
+DESCRIBE.UM_VAMPIREBAT =
+{
+    GENERIC = "I assure you, I taste horrible!",
+    ACID = DESCRIBE.BAT.ACID, -- in acid form
+}
 DESCRIBE.CRITTERLAB_REAL = DESCRIBE.CRITTERLAB
-DESCRIBE.CRITTERLAB_REAL_BROKEN =
-"Some moon rocks would be the perfect ingredient for a new little home."
+DESCRIBE.CRITTERLAB_REAL_BROKEN = "Some moon rocks would be the perfect ingredient for a new little home."
 DESCRIBE.CHARLIEPHONOGRAPH_100 = "I wonder what is in her record collection?"
 DESCRIBE.BUGZAPPER = "I had to use one of these often back at..."
 

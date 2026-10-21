@@ -153,7 +153,11 @@ DESCRIBE.SALTPACK = "I still hate Winter."
 DESCRIBE.SKELETONMEAT = "I'm gonna vomit..."
 DESCRIBE.CHIMP = DESCRIBE.MONKEY
 DESCRIBE.SWILSON = "W-Wilson?"
-DESCRIBE.UM_VAMPIREBAT = "Oh, you're creepy."
+DESCRIBE.UM_VAMPIREBAT =
+{
+    GENERIC = "Oh, you're creepy.",
+    ACID = DESCRIBE.BAT.ACID, -- in acid form
+}
 DESCRIBE.LUREPLAGUE_RAT = "Stay away from me!"
 
 -- Swampyness

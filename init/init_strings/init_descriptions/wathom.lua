@@ -161,7 +161,11 @@ DESCRIBE.AIR_CONDITIONER = "Survival, conquered."
 DESCRIBE.SKELETONMEAT = "Flesh, human. Edible, however better uses, magic."
 DESCRIBE.CHIMP = DESCRIBE.MONKEY
 DESCRIBE.SWILSON = "Manifestation, shadow. Temperament, particularly hostile."
-DESCRIBE.UM_VAMPIREBAT = "Past adolesence, survived. Surprising."
+DESCRIBE.UM_VAMPIREBAT =
+{
+    GENERIC = "Past adolesence, survived. Surprising.",
+    ACID = STRINGS.CHARACTERS.GENERIC.DESCRIBE.BAT.ACID, -- in acid form
+}
 DESCRIBE.CRITTERLAB_REAL = DESCRIBE.CRITTERLAB
 DESCRIBE.CRITTERLAB_REAL_BROKEN = "Repairable, Alter rock?"
 DESCRIBE.CHARLIEPHONOGRAPH_100 = DESCRIBE.MAXWELLPHONOGRAPH

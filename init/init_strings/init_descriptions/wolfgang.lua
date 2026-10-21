@@ -143,7 +143,11 @@ DESCRIBE.SALTPACK = "Wolfgang is stronger than snow!"
 DESCRIBE.SKELETONMEAT = "Is... Person...?"
 DESCRIBE.CHIMP = DESCRIBE.MONKEY
 DESCRIBE.SWILSON = "Friend, no! Is Wolfgang!"
-DESCRIBE.UM_VAMPIREBAT = "Is bigger flappy bad guy!"
+DESCRIBE.UM_VAMPIREBAT =
+{
+    GENERIC = "Is bigger flappy bad guy!",
+    ACID = DESCRIBE.BAT.ACID, -- in acid form
+}
 
 -- Swampyness
 DESCRIBE.RICEPLANT = "Is plant, with food."

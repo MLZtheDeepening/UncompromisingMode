@@ -298,7 +298,7 @@ env.AddPrefabPostInit("spider", function(inst)
 
     local combat = inst.components.combat
     if TUNING.DSTU.REGSPIDERJUMP and combat then
-        combat.attackrange = TUNING.SPIDER_WARRIOR_ATTACK_RANGE
+        combat.attackrange = 4
         --combat:SetRetargetFunction(2, WarriorRetarget)
     end
 
@@ -334,10 +334,6 @@ env.AddPrefabPostInit("spider_warrior", function(inst)
     lootdropper.numrandomloot = 1
     lootdropper:SetChanceLootTable('spider_trapdoor')
 
-    if inst.components.combat then
-        inst.components.combat:SetRange(TUNING.SPIDER_WARRIOR_ATTACK_RANGE, TUNING.SPIDER_WARRIOR_HIT_RANGE * 1.05)
-    end
-
     inst:AddComponent("tradable") -- For Moondial Mutation.
 end)
 
@@ -353,10 +349,6 @@ env.AddPrefabPostInit("spider_dropper", function(inst)
     lootdropper:AddRandomHauntedLoot("spidergland", 1)
     lootdropper.numrandomloot = 1
     lootdropper:SetChanceLootTable('spider_trapdoor_hooded')
-
-    if inst.components.combat then
-        inst.components.combat:SetRange(TUNING.SPIDER_WARRIOR_ATTACK_RANGE, TUNING.SPIDER_WARRIOR_HIT_RANGE * 1.05)
-    end
 end)
 
 SetSharedLootTable('um_spider_moon',

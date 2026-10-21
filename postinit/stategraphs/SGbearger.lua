@@ -39,7 +39,7 @@ env.AddStategraphPostInit("bearger", function(inst)
     local states = {
         State{
             name = "pre_shoot",
-            tags = {"busy", "canrotate"},
+            tags = {"busy"},
 
             onenter = function(inst, target)
                 inst.sg.statemem.target = target ~= nil and target:IsValid() and target or inst.components.combat.target
@@ -72,7 +72,7 @@ env.AddStategraphPostInit("bearger", function(inst)
         },
         State{
             name = "shoot",
-            tags = {"attack", "canrotate", "busy"},
+            tags = {"attack", "busy"},
 
             onenter = function(inst, target)
                 inst.sg.statemem.target = target ~= nil and target:IsValid() and target or inst.components.combat.target
