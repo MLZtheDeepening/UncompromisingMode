@@ -1601,9 +1601,9 @@ local function SnifferFoodScoreCalculations(inst, container, v)
     inst.foodscore = inst.foodscore + (delta > 0 and ((delta * preparedmult) * stackmult) or delta)
 end
 
-local NO_CONTAINER_PREFABS = {"lureplant", "catcoon", "um_winkyburrow", "um_winkyhomeburrow"}
+local NO_CONTAINER_PREFABS = {"lureplant", "catcoon"}
 local function IsProperContainer(owner)
-    return not owner or owner and not (table.contains(NO_CONTAINER_PREFABS, owner.prefab) or owner:HasAnyTag("lamp", "yots_post", "krampus_middleman", "pocketdimension_container", "buried"))
+    return not owner or not (table.contains(NO_CONTAINER_PREFABS, owner.prefab) or owner:HasAnyTag("lamp", "yots_post", "krampus_middleman", "pocketdimension_container", "buried"))
 end
 
 local function TrySpawnIcon(v, owner, intensity)
@@ -1619,61 +1619,9 @@ local function TrySpawnIcon(v, owner, intensity)
     end
 end
 
-local function GetProxy(inst)
-    return inst.components.container_proxy ~= nil and inst.components.container_proxy.master or nil
-end
-
 local function GetIntensity(item, in_container)
     return not in_container and (item:HasTag("stale") and .75 or item:HasTag("spoiled") and .8)
         or (item:HasTag("stale") and .5 or item:HasTag("spoiled") and .75) or item:HasTag("spoiledfood") and 1
-end
-
-local function DDVisual(owner, proxy, visual)
-    if proxy == nil or not proxy:IsValid() or proxy.components.container_proxy == nil then
-        return
-    end
-
-    if table.contains(NO_CONTAINER_PREFABS, proxy.prefab) then
-        return
-    end
-
-    local master = GetProxy(proxy)
-    if master == nil or master.components.container == nil then
-        return
-    end
-
-    local MORE = nil
-
-    for k, item in pairs(master.components.container.slots) do
-        if item ~= nil and item:IsValid() then
-            local intensity = GetIntensity(item, true)
-            if intensity ~= nil and (MORE == nil or intensity > MORE) then
-                MORE = intensity
-            end
-        end
-    end
-
-    if MORE ~= nil then
-        TrySpawnIcon(visual or proxy, owner, MORE)
-    end
-end
-
-local function DDScore(inst, proxy, scanned_masters)
-    local master = GetProxy(proxy)
-    if master == nil or master.components.container == nil then
-        return
-    end
-
-    if scanned_masters[master] then
-        return
-    end
-    scanned_masters[master] = true
-
-    for k, item in pairs(master.components.container.slots) do
-        if item ~= nil and item:IsValid() then
-            SnifferFoodScoreCalculations(inst, true, item)
-        end
-    end
 end
 
 local function FoodScoreCalculations(container, v, owner)
@@ -1684,9 +1632,7 @@ end
 
 local NOTAGS = {"engineeringbatterypowered", "smallcreature", "_container", "spore", "NORATCHECK", "_combat", "_health", "balloon", "heavy", "projectile", "frozen", "deployedfarmplant", "outofreach"}
 local function Sniffertime(owner, sniffer)
-    if not owner or not owner:IsValid() or not sniffer or not sniffer:IsValid() then
-        return
-    end
+    if not owner:IsValid() then return end
 
     local x, y, z = sniffer.Transform:GetWorldPosition()
     local ents = TheSim:FindEntities(x, 0, z, TUNING.DSTU.SNIFFER_ITEM_RANGE, {"_inventoryitem"}, NOTAGS)
@@ -1697,13 +1643,6 @@ local function Sniffertime(owner, sniffer)
             if IsProperContainer(container) then
                 FoodScoreCalculations(container, v, owner)
             end
-        end
-    end
-
-    for i, v in ipairs(TheSim:FindEntities(x, 0, z, TUNING.DSTU.SNIFFER_ITEM_RANGE, nil, {"FX", "NOCLICK"})) do
-        local container = v:IsValid() and (v.components.container_proxy and v or v.container and v.container.components.container_proxy and v.container)
-        if container then
-            DDVisual(owner, container, v.container and v or nil)
         end
     end
 end
@@ -1742,16 +1681,6 @@ local function TimeForACheckUp(inst, dev)
                     end
                 end]]
                 SnifferFoodScoreCalculations(inst, container, v)
-            end
-        end
-    end
-
-    local DiferentDD = {}
-    for i, v in ipairs(TheSim:FindEntities(x, 0, z, TUNING.DSTU.SNIFFER_ITEM_RANGE, nil, {"FX", "NOCLICK"})) do
-        if (inst.ratscore + inst.foodscore + inst.burrowbonus) < 300 then
-            local container = v:IsValid() and IsProperContainer(v) and (v.components.container_proxy and v or v.container and v.container.components.container_proxy and v.container)
-            if container then
-                DDScore(inst, container, DiferentDD)
             end
         end
     end
@@ -1996,11 +1925,11 @@ local function ratmask_stinkfn()
     return inst
 end
 
-local function FindClosestPart(owner)
+local function CheckForBurrows(owner)
     local ix, iy, iz = owner.Transform:GetWorldPosition()
 
     local burrows = TheSim:FindEntities(ix, iy, iz, 2000, {"ratburrow"})
-    if next(burrows) and #burrows > 0 then
+    if next(burrows) then
         for i, v in ipairs(burrows) do
             if owner.SoundEmitter then
                 owner:DoTaskInTime(i, function(owner)
@@ -2027,18 +1956,13 @@ local function FindClosestPart(owner)
             end
         end
     else
-        inst.components.talker:Say(GetString(owner, "ANNOUNCE_NORATBURROWS"))
+        owner.components.talker:Say(GetString(owner, "ANNOUNCE_NORATBURROWS"))
     end
 end
 
-local function OnCooldown(inst)
-    inst.components.useableitem.inuse = false
-end
-
-local function CheckTargetPiece(inst)
-    local owner = inst.components.inventoryitem.owner
+local function RatmaskPing(inst, owner)
     if owner then
-        FindClosestPart(owner)
+        CheckForBurrows(owner)
         inst.fx = SpawnPrefab("um_ratring_fx")
         inst.fx.entity:AddFollower()
         inst.fx.Follower:FollowSymbol(owner.GUID, "swap_hat", 0, 0, 0)
@@ -2047,11 +1971,10 @@ local function CheckTargetPiece(inst)
         inst.SoundEmitter:KillSound("ratping")
         inst.SoundEmitter:PlaySound("UCSounds/ratping/ping_hotter", "ratping")
         local sniffer = FindEntity(owner, 40, nil, {"rat_sniffer"})
-        if sniffer ~= nil then
+        if sniffer then
             Sniffertime(owner, sniffer)
         end
     end
-    --inst.components.rechargeable:Discharge(8)
 end
 
 local function OnEquipRat(inst, owner)
@@ -2060,37 +1983,44 @@ local function OnEquipRat(inst, owner)
     owner.AnimState:Hide("HAIR_HAT")
     owner.AnimState:Show("HAIR_NOHAT")
     owner.AnimState:Show("HAIR")
-    owner.AnimState:Show("HAIRFRONT")
+
+    if owner.isplayer then
+        owner.AnimState:Show("HEAD")
+        owner.AnimState:Hide("HEAD_HAT")
+        owner.AnimState:Hide("HEAD_HAT_NOHELM")
+        owner.AnimState:Hide("HEAD_HAT_HELM")
+    end
 
     if owner and not owner:HasTag("equipmentmodel") then
-        inst.components.fueled:StartConsuming()
         owner:AddTag("ratfriend")
         owner.SoundEmitter:PlaySound("turnoftides/creatures/together/carrat/emerge")
-        owner.rat_task = owner:DoPeriodicTask(5, Sniffertime, 0)
-        inst.rat_task2 = inst:DoPeriodicTask(8, CheckTargetPiece, 0)
+        inst.components.fueled:StartConsuming()
+        inst.rat_task = inst:DoPeriodicTask(8, RatmaskPing, 0, owner)
     end
 end
 
 local function OnUnequipRat(inst, owner)
-    --owner.AnimState:Show("HAIR_NOHAT")
-    owner.AnimState:Show("HAIR")
     owner.AnimState:ClearOverrideSymbol("swap_hat")
-    owner.AnimState:ClearOverrideSymbol("face")
     owner.AnimState:Hide("HAT")
-    owner.AnimState:Show("HEAD")
+    owner.AnimState:Hide("HAIR_HAT")
+    owner.AnimState:Show("HAIR_NOHAT")
+    owner.AnimState:Show("HAIR")
+
+    if owner.isplayer then
+        owner.AnimState:Show("HEAD")
+        owner.AnimState:Hide("HEAD_HAT")
+        owner.AnimState:Hide("HEAD_HAT_NOHELM")
+        owner.AnimState:Hide("HEAD_HAT_HELM")
+    end
+
+    owner:RemoveTag("ratfriend")
 
     inst.components.fueled:StopConsuming()
-    if owner then
-        owner:RemoveTag("ratfriend")
-        if owner.rat_task then
-            owner.rat_task:Cancel()
-            owner.rat_task = nil
-        end
+    if inst.rat_task then
+        inst.rat_task:Cancel()
+        inst.rat_task = nil
     end
-    if inst and inst.rat_task2 then
-        inst.rat_task2:Cancel()
-        inst.rat_task2 = nil
-    end
+    if inst.fx then inst.fx = nil end
 end
 
 local function ratfn()
@@ -2121,23 +2051,16 @@ local function ratfn()
 
     inst:AddComponent("inventoryitem")
 
-    inst:AddComponent("equippable")
-    inst.components.equippable.equipslot = EQUIPSLOTS.HEAD
-    inst.components.equippable:SetOnEquip(OnEquipRat)
-    inst.components.equippable:SetOnUnequip(OnUnequipRat)
-    inst.components.equippable.dapperness = TUNING.CRAZINESS_SMALL
+    local equippable = inst:AddComponent("equippable")
+    equippable.equipslot = EQUIPSLOTS.HEAD
+    equippable:SetOnEquip(OnEquipRat)
+    equippable:SetOnUnequip(OnUnequipRat)
+    equippable.dapperness = TUNING.CRAZINESS_SMALL
 
-    --[[inst:AddComponent("useableitem")
-    inst.components.useableitem:SetOnUseFn(CheckTargetPiece)
-
-    inst:AddComponent("rechargeable")
-    inst.components.rechargeable:SetOnChargedFn(OnCooldown)
-    inst.components.rechargeable:SetCharge(1011111)]]
-
-    inst:AddComponent("fueled")
-    inst.components.fueled.fueltype = FUELTYPE.USAGE
-    inst.components.fueled:InitializeFuelLevel(TUNING.MOLEHAT_PERISHTIME)
-    inst.components.fueled:SetDepletedFn( --[[generic_perish]] inst.Remove)
+    local fueled = inst:AddComponent("fueled")
+    fueled.fueltype = FUELTYPE.USAGE
+    fueled:InitializeFuelLevel(TUNING.MOLEHAT_PERISHTIME)
+    fueled:SetDepletedFn(inst.Remove)
 
     MakeHauntableLaunch(inst)
 
