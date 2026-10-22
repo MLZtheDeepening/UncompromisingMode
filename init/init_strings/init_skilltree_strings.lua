@@ -5,9 +5,9 @@ if SkillTreeDefs.SKILLTREE_DEFS["wilson"] ~= nil then
     SkillTreeDefs.SKILLTREE_DEFS["wilson"].wilson_alchemy_4.desc = STRINGS.SKILLTREE.WILSON.WILSON_ALCHEMY_4_DESC .. "\nTransform 3 Monster Morsels into a Monster Meat.\nTransform a Monster Meat into 2 Monster Morsels."
 end
 
---[[if SkillTreeDefs.SKILLTREE_DEFS["willow"] ~= nil then --Desn't work rn :( -CB
-    SkillTreeDefs.SKILLTREE_DEFS["willow"].willow_attuned_lighter.desc = STRINGS.SKILLTREE.WILLOW.WILLOW_ATTUNED_LIGHTER_DESC .. " 󰀕ACan also absorb Smog."
-end]]
+if SkillTreeDefs.SKILLTREE_DEFS["willow"] ~= nil then --Works rn :) (Thanks, Shy) -CB
+    SkillTreeDefs.SKILLTREE_DEFS["willow"].willow_attuned_lighter.desc = STRINGS.SKILLTREE.WILLOW.WILLOW_ATTUNED_LIGHTER_DESC .. " 󰀕Can also absorb Summer's Smog."
+end
 
 if SkillTreeDefs.SKILLTREE_DEFS["wurt"] ~= nil then --need to do a config check for grotto later probably yeah -CB
     SkillTreeDefs.SKILLTREE_DEFS["wurt"].wurt_pathfinder.desc = STRINGS.SKILLTREE.WURT.WURT_PATHFINDER_DESC .. "\n󰀕Same applies to flooded regions."
