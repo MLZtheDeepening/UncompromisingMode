@@ -345,12 +345,6 @@ local inventoryitems =
     "ms_twisted_antler",
     "ms_um_trans_bomb_moon",
 
-    --winona stuff
-    "winona_battery_low_item_um",
-    "winona_battery_high_item_um",
-    "winona_spotlight_item_um",
-    "winona_catapult_item_um",
-
     --crab king items
     "hat_crab",
     "staff_starfall",
