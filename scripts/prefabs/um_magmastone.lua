@@ -253,7 +253,7 @@ local function outcrop()
 
     inst:AddComponent("inspectable")
 
-    local lootdroper = inst:AddComponent("lootdropper")
+    local lootdropper = inst:AddComponent("lootdropper")
     lootdropper:SetChanceLootTable('um_magmastone_outcrop')
 
     local workable = inst:AddComponent("workable")
