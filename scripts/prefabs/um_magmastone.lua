@@ -154,7 +154,7 @@ local function baserock_fn()
 
     inst:AddComponent("inspectable")
 
-    local lootdroper = inst:AddComponent("lootdropper")
+    local lootdropper = inst:AddComponent("lootdropper")
     lootdropper:SetChanceLootTable('um_magmastone')
 
     local workable = inst:AddComponent("workable")
