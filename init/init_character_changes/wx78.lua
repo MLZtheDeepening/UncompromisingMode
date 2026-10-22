@@ -61,8 +61,6 @@ ModuleDefs.AddCreatureScanDataDefinition("um_pawn", "screech", 6)
 ModuleDefs.AddCreatureScanDataDefinition("um_pawn_nightmare", "screech", 10)
 --ModuleDefs.AddCreatureScanDataDefinition("wathom", "screech", 99) -- One day man, one day... (not)
 
-
-
 --[[if KnownModIndex:IsModEnabled("workshop-1289779251") then
     ModuleDefs.AddCreatureScanDataDefinition("boulder_crab", "squittlearmor", 3) -- CF compatibility before shielding circuit came to existance.
 end]]
