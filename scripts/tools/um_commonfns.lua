@@ -63,15 +63,6 @@ function UMCommonFns.IsNotFriendly(attacker, target) -- Is the target an ally or
         and (not leader or leadercombat and leadercombat:CanTarget(target) and not leadercombat:IsAlly(target)))
 end
 
-function UMCommonFns.IsRangedWeapon(ent)
-    if UPDATE_CHECK and IsRangedWeapon then return IsRangedWeapon(ent) end
-    return ent ~= nil and
-        (    ent.components.projectile ~= nil or
-            (ent.components.weapon ~= nil and ent.components.weapon:CanRangedAttack()) or
-            ent:HasTag("pseudorangedweapon")
-        )
-end
-
 local SpDamageUtil = require("components/spdamageutil")
 local CANT_EXPLODE_TAGS = {"INLIMBO", "notarget"}
 function UMCommonFns.DoAOEExplosion(inst, um_explodeparams) -- Modified copy of explosive:OnBurnt().

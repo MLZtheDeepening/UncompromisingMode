@@ -22,7 +22,7 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "unique" then
     local allowedstimuli = {"soul"}
     local function AbleToBeAttacked(inst, weapon, stimuli)
         return inst.sg:HasStateTag("busy") and inst.sg.currentstate.name ~= "takeoff"
-            or weapon and (weapon.prefab == "bugzapper" or UMCommonFns.IsRangedWeapon(weapon))
+            or weapon and (weapon.prefab == "bugzapper" or IsRangedWeapon(weapon))
             or stimuli and table.contains(allowedstimuli, stimuli)
     end
 
@@ -90,25 +90,9 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "unique" then
         end
     end
 
-    local function SlipperyButterflies(inst, petaltable)
-        if petaltable then
-            if not TheWorld.ismastersim then return end
-
-            inst.um_petaldroptable = petaltable
-
-            local lootdropper = inst.components.lootdropper
-            if lootdropper then
-                local _LootSetupFn = lootdropper.lootsetupfn
-                lootdropper:SetLootSetupFn(function(_lootdropper, ...)
-                    local _inst = _lootdropper.inst
-                    if not _inst.um_wasmurdered then
-                        _lootdropper:SetChanceLootTable(nil) -- Moon Moth sets a chance loot table that needs to be cleared here.
-                        _lootdropper:SetLoot(_inst.um_petaldroptable or {"petals"})
-                    end
-                    return _LootSetupFn and _LootSetupFn(_lootdropper, ...)
-                end)
-            end
-        else
+    local butterflies = {"butterfly", "um_buttery_fly", "moonbutterfly"}
+    for _, prefab in pairs(butterflies) do
+        env.AddPrefabPostInit(prefab, function(inst)
             inst:AddTag("um_slippery")
 
             if not TheWorld.ismastersim then return end
@@ -116,15 +100,6 @@ if TUNING.DSTU.BUTTERFLYWINGS_NERF == "unique" then
             inst.UMSlipAway = UMSlipAway
 
             inst:DoPeriodicTask(2, CheckForNearbyBozos)
-        end
-    end
-
-    local butterflies = {["butterfly"] = {"petals"}, ["um_buttery_fly"] = {"petals", "petals"}, ["moonbutterfly"] = {"moon_tree_blossom"}}
-    for prefab, petaltable in pairs(butterflies) do
-        env.AddPrefabPostInit(prefab, function(inst)
-            SlipperyButterflies(inst, not UPDATE_CHECK and petaltable)
-
-            if not TheWorld.ismastersim then return end
 
             if prefab == "butterfly" then
                 local lootdropper = inst.components.lootdropper

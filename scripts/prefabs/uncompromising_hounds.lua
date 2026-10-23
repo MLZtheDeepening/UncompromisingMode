@@ -650,7 +650,7 @@ local function OnLightningAttacked(inst, data)
     if not data then return end
     local attacker = data.attacker
     if inst.sg and inst.sg:HasStateTag("charging") and attacker and attacker.components.health and not attacker.components.health:IsDead() and data.stimuli ~= "soul"
-        and not UMCommonFns.IsRangedWeapon(data.weapon) and not (attacker.components.inventory and attacker.components.inventory:IsInsulated())
+        and not IsRangedWeapon(data.weapon) and not (attacker.components.inventory and attacker.components.inventory:IsInsulated())
         and not attacker:HasTag("catapult") then
         local damage_mult = 1
         if not IsEntityElectricImmune(attacker) then
@@ -776,7 +776,7 @@ local function OnGlacialAttacked(inst, data)
     if not data then return end
     local attacker = data.attacker
     if inst.sg and inst.sg:HasStateTag("charging") and attacker and attacker.components.health and not attacker.components.health:IsDead() and data.stimuli ~= "soul"
-        and not UMCommonFns.IsRangedWeapon(data.weapon) and not attacker:HasTag("catapult") then
+        and not IsRangedWeapon(data.weapon) and not attacker:HasTag("catapult") then
         if attacker.components.freezable then
             attacker.components.freezable:AddColdness(4)
             attacker.components.freezable:SpawnShatterFX()
@@ -1036,7 +1036,7 @@ local function OnMagmaAttacked(inst, data)
     if not data then return end
     local attacker = data.attacker
     if inst.sg and inst.sg:HasStateTag("charging") and attacker and attacker.components.health and not attacker.components.health:IsDead() and data.stimuli ~= "soul"
-        and not UMCommonFns.IsRangedWeapon(data.weapon) and not attacker:HasTag("catapult") then
+        and not IsRangedWeapon(data.weapon) and not attacker:HasTag("catapult") then
         attacker.components.health:DoFireDamage(5, inst, true)
         if not attacker.components.fueled and attacker.components.burnable and not attacker.components.burnable:IsBurning() and not attacker:HasTag("burnt") then
             attacker.components.burnable:Ignite(true, inst, inst)
