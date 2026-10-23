@@ -1,4 +1,3 @@
----@diagnostic disable: lowercase-global
 --live: 󰀕 white skull
 --beta: 󰀕 red skull
 name = "󰀕 Uncompromising Mode"
@@ -10,7 +9,7 @@ end
 
 --MAJOR.MINOR.FIX
 --INCREASE THIS VERSION
-local _version = "6.0.2.7"
+local _version = "6.0.2.8"
 
 description = [[
     󰀔 ["On The Rocks!" v1.6  (Beta ver: v]] .. _version .. [[)]

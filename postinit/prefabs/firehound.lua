@@ -1,12 +1,15 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------
-SetSharedLootTable('hound_fire',
-{
-    { 'monstermeat', 1.0 },
-    { 'houndstooth', 1.0 },
-    { 'redgem',      0.3 },
-})
+env.AddSimPostInit(function()
+    SetSharedLootTable("hound_fire",
+    {
+        {"monstermeat", 1},
+        {"houndstooth", 1},
+        {"houndstooth", 1},
+        {"redgem", .3},
+    })
+end)
 
 local function RechargeSpitfireAttack(inst)
     inst.um_specialattackready = true

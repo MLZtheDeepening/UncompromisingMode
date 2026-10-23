@@ -1,11 +1,13 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------
-SetSharedLootTable("otter",
-{
-    { "meat",            1.00 },
-    { "messagebottle",   0.05 },
-})	
+env.AddSimPostInit(function()
+    SetSharedLootTable("otter",
+    {
+        {"meat", 1},
+        {"messagebottle", .05},
+    })
+end)
 
 --[[env.AddPrefabPostInit("otter", function(inst)
     if not TheWorld.ismastersim then return end
