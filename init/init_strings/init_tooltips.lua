@@ -434,6 +434,13 @@ if TUNING.DSTU.WATHGRITHR_REWORK.ENABLED then
     TOOLTIPS.WATHGRITHR_SHIELD_DREADSTONE = "- Scares attackers.\n - Effects stack with dreadstone armor."
     TOOLTIPS.SADDLE_WATHGRITHR = "- Increased damage."
     TOOLTIPS.BATTLESONG_DURABILITY = "- Now works on shields."
+    STRINGS.LUNAR_MELODIST_TOOLTIP = {
+        BATTLESONG_DURABILITY = "- Also reduces armor durability loss.",
+        BATTLESONG_HEALTHGAIN = "- Slowly regenerates health overtime.",
+        BATTLESONG_SANITYGAIN = "- Slowly regenerate sanity overtime.",
+        BATTLESONG_SANITYAURA = "- Higher resistance to negative sanity auras.",
+        BATTLESONG_FIRERESISTANCE = "- Provides some summer insulation.",
+    }
 end
 
 if TUNING.DSTU.DISABLE_MEGAFLARE then

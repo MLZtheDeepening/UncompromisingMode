@@ -1995,6 +1995,9 @@ Assets = {
     Asset("IMAGE", "images/engineering_tip.tex"),
     Asset("ATLAS", "images/engineering_tip.xml"),
 
+    Asset("IMAGE", "images/LM_TT.tex"),
+    Asset("ATLAS", "images/LM_TT.xml"),
+
     --SOUND
     Asset("SOUNDPACKAGE", "sound/UCSounds.fev"),
     Asset("SOUND", "sound/UCSounds_bank00.fsb"),
