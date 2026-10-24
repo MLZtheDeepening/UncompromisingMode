@@ -32,7 +32,7 @@ end
 
 UMCommonFns.KNOCKBACK_CANT_TAGS = {"heavybody", "fat_gang", "foodknockbackimmune"}
 UMCommonFns.KNOCKBACK_ARMOR_CANT_TAGS = {"heavyarmor", "knockback_protection"}
-function UMCommonFns.ShouldKnockback(inst, notknockedback)
+function UMCommonFns.ShouldKnockback(inst)
     local inventory = inst.components.inventory
     local bodyslot = inventory and inventory:GetEquippedItem(EQUIPSLOTS.BODY)
     return not inst:HasAnyTag(UMCommonFns.KNOCKBACK_CANT_TAGS) and not (inst.sg and inst.sg:HasStateTag("shell")) and not (inst.components.rider and inst.components.rider:IsRiding())

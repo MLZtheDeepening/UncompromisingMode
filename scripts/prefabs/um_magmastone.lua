@@ -205,15 +205,14 @@ local function OnWorkOutcrop(inst, worker, workleft)
 end
 
 local function SpawnFireCircle(inst)
-    local fire_ring = SpawnPrefab("deer_fire_circle")
-    fire_ring.burstprefab = "um_deer_fire_burst"
-    fire_ring.Transform:SetPosition(inst.Transform:GetWorldPosition())
-    return fire_ring
+    if inst:IsAsleep() then return end
+    inst.fire_ring = SpawnPrefab("deer_fire_circle")
+    inst.fire_ring.Transform:SetPosition(inst.Transform:GetWorldPosition())
 end
 
 local function StartGrowingOutcrop(inst)
     inst.components.timer:StartTimer("grow", TUNING.TOTAL_DAY_TIME * 4)
-    inst.fire_ring = SpawnFireCircle(inst) -- We don't make the ring a child of inst because it needs to be removed a little after inst is.
+    SpawnFireCircle(inst) -- We don't make the ring a child of inst because it needs to be removed a little after inst is.
 end
 
 local function OnTimerDoneOutcrop(inst, data)
@@ -226,6 +225,12 @@ local function OnTimerDoneOutcrop(inst, data)
     end
 end
 
+local function OnLoad(inst, data)
+    if inst.components.timer:TimerExists("grow") then
+        SpawnFireCircle(inst)
+    end
+end
+
 local function OnEntitySleep(inst)
     if inst.fire_ring then
         if inst.fire_ring:IsValid() then inst.fire_ring:Remove() end
@@ -235,7 +240,7 @@ end
 
 local function OnEntityWake(inst)
     if inst.components.timer:TimerExists("grow") and not inst.fire_ring then
-        inst.fire_ring = SpawnFireCircle(inst)
+        SpawnFireCircle(inst)
     end
 end
 
@@ -303,6 +308,8 @@ local function outcrop()
         end
         if inst.fire_ring then inst.fire_ring:KillFX() end
     end)
+
+    inst.OnLoad = OnLoad
 
     inst.OnEntitySleep = OnEntitySleep
     inst.OnEntityWake = OnEntityWake
