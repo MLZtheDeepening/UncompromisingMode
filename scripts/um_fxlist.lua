@@ -27,6 +27,17 @@ local fxlist = {
             inst.AnimState:SetDeltaTimeMultiplier(.85)
         end,
     },
+    {
+        name = "um_deer_fire_burst",
+        bank = "deer_fire_burst",
+        build = "deer_fire_burst",
+        anim = "idle",
+        nofaced = true,
+        fn = function(inst)
+            inst.AnimState:SetLightOverride(1)
+            inst.AnimState:SetFinalOffset(1)
+        end,
+    },
 }
 
 local fxprefabs = require("fx")
