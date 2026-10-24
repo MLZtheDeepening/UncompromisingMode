@@ -9,7 +9,7 @@ end
 
 --MAJOR.MINOR.FIX
 --INCREASE THIS VERSION
-local _version = "6.0.3"
+local _version = "6.0.3.1"
 
 description = [[
     󰀔 ["On The Rocks!" v1.6  (Beta ver: v]] .. _version .. [[)]
@@ -867,7 +867,7 @@ configuration_options = {
             {description = "Slippery", data = "unique"},
             {description = "Nerfed Stats", data = "stat_nerf"},
             {description = "Disabled", data = "nothing"}},
-        default = "petals"
+        default = "unique"
     },
     BinaryConfig("angry_werepigs", "Angry Werepigs", "Werepigs prioritize attacking over eating.", true),
     BinaryConfig("cowardfrogs", "Frog Anti-cheese", "Frogs flee from bosses to prevent cheesing.", true),
