@@ -598,8 +598,9 @@ AddRecipe2("um_astral_projector", { Ingredient("purplemooneye", 1), Ingredient("
             and #TheSim:FindEntities(x, y, z, 27, { "um_astral_projector" }) == 0
             and #TheSim:FindEntities(x, y, z, 27, { "um_astral_projector_target" }) == 0
     end
-}, { "STRUCTURES" })
+}, { "STRUCTURES", "MAGIC" })
 ChangeSortKey("um_astral_projector", "archive_resonator_item", "STRUCTURES", false)
+ChangeSortKey("um_astral_projector", "sentryward", "MAGIC", true)
 
 AddRecipe2("um_astral_projector_target", { Ingredient("moonglass", 3), Ingredient("thulecite", 4), Ingredient("moonrocknugget", 2) }, TECH.LOST, {
     placer = "um_astral_projector_target_placer",
@@ -609,12 +610,13 @@ AddRecipe2("um_astral_projector_target", { Ingredient("moonglass", 3), Ingredien
             and #TheSim:FindEntities(x, y, z, 27, { "um_astral_projector" }) == 0
             and #TheSim:FindEntities(x, y, z, 27, { "um_astral_projector_target" }) == 0
     end
-}, { "STRUCTURES" })
+}, { "STRUCTURES", "MAGIC" })
 ChangeSortKey("um_astral_projector_target", "um_astral_projector", "STRUCTURES", true)
-ChangeSortKey("townportal", "um_astral_projector_target", "STRUCTURES", true)
+ChangeSortKey("um_astral_projector_target", "um_astral_projector", "MAGIC", true)
 
-AddRecipe2("um_scrapper", { Ingredient("greenmooneye", 1), Ingredient("thulecite", 4), Ingredient("gears", 1) }, TECH.LOST, { placer = "um_scrapper_placer" }, { "STRUCTURES", "TOOLS" })
-ChangeSortKey("um_scrapper", "townportal", "STRUCTURES", true)
+AddRecipe2("um_scrapper", { Ingredient("greenmooneye", 1), Ingredient("thulecite", 4), Ingredient("gears", 1) }, TECH.LOST, { placer = "um_scrapper_placer" }, { "STRUCTURES", "TOOLS", "MAGIC" })
+ChangeSortKey("um_scrapper", "um_astral_projector_target", "STRUCTURES", true)
+ChangeSortKey("um_scrapper", "townportal", "MAGIC", true)
 ChangeSortKey("um_scrapper", "sentryward", "TOOLS", true)
 
 --AddRecipe2("um_inkubator", { Ingredient("gears", 1), Ingredient("nightmarefuel", 4), Ingredient("thulecite", 2) }, TECH.LOST, { placer = "um_inkubator_placer" }, { "STRUCTURES" })

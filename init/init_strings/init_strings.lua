@@ -272,6 +272,7 @@ STRINGS.ACTIONS.UM_CALL_BEEF = "Call Beefalo"
 STRINGS.ACTIONS.UM_COOL_MAGMA_STAFF = "Solidify"
 
 STRINGS.UI.APPLY_GEM = "Forge!"
+STRINGS.UI.UM_COOKPOT_WAGSTAFF_COOK = "Atomize"
 STRINGS.UI.HUD.UM_VETSKULL_PREFIX = "Veteran's Curse:\n"
 STRINGS.UI.HUD.UM_VETSKULL_GENERIC = " - Receive more damage when attacked.\n - Sanity drains faster.\n - Health and Sanity from foods is applied *slowly* over time."
 STRINGS.UI.HUD.UM_VETSKULL = {

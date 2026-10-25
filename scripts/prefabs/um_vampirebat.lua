@@ -16,29 +16,37 @@ local prefabs =
     "monstersmallmeat",
 }
 
+local BrainCommon = require("brains/braincommon")
 local brain = require "brains/batbrain"
 
-if TUNING.DSTU.MONSTERSMALLMEAT then
-    SetSharedLootTable('vampirebat',
-        {
-            { 'monstersmallmeat', 0.25 },
-            { 'pigskin',          0.05 },
-            { 'batwing',          0.75 },
-        })
-else
-    SetSharedLootTable('vampirebat',
-        {
-            { 'monstermeat', 0.25 },
-            { 'pigskin',     0.05 },
-            { 'batwing',     0.75 },
-        })
-end
+local monstermeattype = TUNING.DSTU.MONSTERSMALLMEAT and "monstersmallmeat" or "monstermeat"
 
-local SLEEP_DIST_FROMHOME = 1
-local SLEEP_DIST_FROMTHREAT = 20
-local MAX_CHASEAWAY_DIST = 80
+SetSharedLootTable("um_vampirebat",
+{
+    {monstermeattype, .25},
+    {"pigskin", .05},
+    {"batwing", .75},
+})
+
+SetSharedLootTable("um_vampirebat_acidinfused",
+{
+    {monstermeattype, .5},
+    {"pigskin", .1},
+    {"batwing", 1},
+    {"nitre", .2},
+})
+
 local MAX_TARGET_SHARES = 100
 local SHARE_TARGET_DIST = 100
+
+local function IsValidMember(inst)
+    return not BrainCommon.ShouldTriggerPanic(inst) and not BrainCommon.ShouldAvoidElectricFence(inst)
+        and not (inst.components.burnable and inst.components.burnable:IsBurning())
+end
+
+local function CanMakeOrJoinTeam(inst, attacker)
+    return IsValidMember(inst)
+end
 
 local function MakeTeam(inst, attacker)
     local leader = SpawnPrefab("teamleader")
@@ -46,22 +54,18 @@ local function MakeTeam(inst, attacker)
     leader.components.teamleader:BroadcastDistress(inst)
 end
 
-local function OnWingDown(inst)
-    inst.SoundEmitter:PlaySound("UCSounds/vampirebat/flap")
+local RETARGET_CANT_TAGS = {"bat", "batdisguise"}
+local RETARGET_ONEOF_TAGS = {"character", "monster"}
+local function IsValidTarget(guy, inst)
+    return inst.components.combat:CanTarget(guy)
 end
 
--- TEAM ATTACKER STUFF
-
-local RETARGET_CANT_TAGS = {"bat"}
-local RETARGET_ONEOF_TAGS = {"character", "monster"}
 local function Retarget(inst)
     local ta = inst.components.teamattacker
 
-    local newtarget = FindEntity(inst, TUNING.BAT_TARGET_DIST, function(guy)
-            return inst.components.combat:CanTarget(guy)
-        end, nil, RETARGET_CANT_TAGS, RETARGET_ONEOF_TAGS)
+    local newtarget = FindEntity(inst, TUNING.BAT_TARGET_DIST, IsValidTarget, nil, RETARGET_CANT_TAGS, RETARGET_ONEOF_TAGS)
 
-    if newtarget and not ta.inteam and not ta:SearchForTeam() then
+    if newtarget and not ta.inteam and CanMakeOrJoinTeam(inst, newtarget) and not ta:SearchForTeam() then
         MakeTeam(inst, newtarget)
     end
 
@@ -85,7 +89,7 @@ local function OnAttacked(inst, data)
         return
     end
 
-    if not inst.components.teamattacker.inteam and not inst.components.teamattacker:SearchForTeam() then
+    if not inst.components.teamattacker.inteam and CanMakeOrJoinTeam(inst, data.attacker) and not inst.components.teamattacker:SearchForTeam() then
         MakeTeam(inst, data.attacker)
     elseif inst.components.teamattacker.teamleader then
         inst.components.teamattacker.teamleader:BroadcastDistress(inst) -- Ask for help!
@@ -97,12 +101,25 @@ local function OnAttacked(inst, data)
     end
 end
 
+local function OnNewCombatTarget(inst, data)
+    local target = data and data.target or nil
+    if target == nil then
+        return
+    end
+
+    if not inst.components.teamattacker.inteam and CanMakeOrJoinTeam(inst, target) and not inst.components.teamattacker:SearchForTeam() then
+        MakeTeam(inst, target)
+    elseif inst.components.teamattacker.teamleader then
+        inst.components.teamattacker.teamleader:BroadcastDistress(inst) -- Ask for help!
+    end
+end
+
 local function OnAttackOther(inst, data)
     inst.components.combat:ShareTarget(data.target, SHARE_TARGET_DIST,
     function(dude) return IsBat(dude) and not dude.components.health:IsDead() end, 5)
 end
 
-local function onsave(inst, data)
+--[[local function onsave(inst, data)
     if inst:HasTag("batfrenzy") then
         data.batfrenzy = true
     end
@@ -114,7 +131,7 @@ local function onload(inst, data)
             inst:AddTag("batfrenzy")
         end
     end
-end
+end]]
 
 local function OnSleepGoHome(inst)
     inst._hometask = nil
@@ -178,15 +195,19 @@ local function BatSleepTest(inst, ...)
     return NocturnalSleepTest(inst, ...)
 end
 
+local DIET = {FOODTYPE.MEAT}
+local ACIDDIET = {FOODTYPE.MEAT, FOODTYPE.NITRE}
+
 local function OnInfuse(inst)
     inst.AnimState:SetSymbolAddColour("bat_eye", .2, .5, 0, 0)
     inst.AnimState:SetSymbolLightOverride("bat_eye", .5)
 
-    inst.components.lootdropper:SetChanceLootTable("bat_acidinfused")
+    inst.components.lootdropper:SetChanceLootTable("um_vampirebat_acidinfused")
 
     inst.components.combat:SetRetargetFunction(1, Retarget)
 
-    inst.components.eater:SetCanEatNitre(true)
+    inst.components.eater:SetDiet(ACIDDIET, ACIDDIET)
+    inst.components.eater:ResetEdibleTagsCache()
 
     if not inst.components.thief then
         inst:AddComponent("thief")
@@ -197,15 +218,24 @@ local function OnUninfuse(inst)
     inst.AnimState:SetSymbolAddColour("bat_eye", 0, 0, 0, 0)
     inst.AnimState:SetSymbolLightOverride("bat_eye", 0)
 
-    inst.components.lootdropper:SetChanceLootTable("bat")
+    inst.components.lootdropper:SetChanceLootTable("um_vampirebat")
 
     inst.components.combat:SetRetargetFunction(3, Retarget)
 
-    inst.components.eater:SetCanEatNitre(false)
+    inst.components.eater:SetDiet(DIET, DIET)
+    inst.components.eater:ResetEdibleTagsCache()
 
     if inst.components.thief then
         inst:RemoveComponent("thief")
     end
+end
+
+local function CalcSanityAura(inst, observer)
+    return inst.components.acidinfusible:IsInfused() and -TUNING.SANITYAURA_LARGE or -TUNING.SANITYAURA_MED
+end
+
+local function GetStatus(inst)--, viewer)
+    return inst.components.acidinfusible:IsInfused() and "ACID" or nil
 end
 
 local function fn()
@@ -243,17 +273,20 @@ local function fn()
         return inst
     end
 
+    inst.scrapbook_scale = .9
+    inst.override_combat_fx_size = "small"
+
     local locomotor = inst:AddComponent("locomotor")
     locomotor:EnableGroundSpeedMultiplier(false)
     locomotor:SetTriggersCreep(false)
     locomotor.walkspeed = 10
     locomotor.pathcaps = {allowocean = true}
 
-    inst:SetStateGraph("SGvampirebat")
+    inst:SetStateGraph("SGum_vampirebat")
     inst:SetBrain(brain)
 
     local eater = inst:AddComponent("eater")
-    eater:SetDiet({FOODTYPE.MEAT}, {FOODTYPE.MEAT})
+    eater:SetDiet(DIET, DIET)
     eater:SetStrongStomach(true)
 
     local sleeper = inst:AddComponent("sleeper")
@@ -265,6 +298,7 @@ local function fn()
     combat.hiteffectsymbol = "bat_body"
     combat:SetDefaultDamage(25)
     combat:SetAttackPeriod(1.8)
+    combat:SetHitArc(TUNING.DEFAULT_HIT_ARC)
     combat:SetRetargetFunction(3, Retarget)
     combat:SetKeepTargetFunction(KeepTarget)
 
@@ -272,7 +306,7 @@ local function fn()
     health:SetMaxHealth(130)
 
     local lootdropper = inst:AddComponent("lootdropper")
-    lootdropper:SetChanceLootTable("vampirebat")
+    lootdropper:SetChanceLootTable("um_vampirebat")
 
     inst:AddComponent("inventory")
 
@@ -283,15 +317,16 @@ local function fn()
     periodicspawner:SetMinimumSpacing(8)
     periodicspawner:Start()
 
-    inst:AddComponent("inspectable")
+    local inspectable = inst:AddComponent("inspectable")
+    inspectable.getstatus = GetStatus
 
     inst:AddComponent("knownlocations")
 
+    local sanityaura = inst:AddComponent("sanityaura")
+    sanityaura.aurafn = CalcSanityAura
+
     MakeMediumBurnableCharacter(inst, "bat_body")
     MakeMediumFreezableCharacter(inst, "bat_body")
-
-    local sanityaura = inst:AddComponent("sanityaura")
-    sanityaura.aura = -TUNING.SANITYAURA_MED
 
     --inst:DoTaskInTime(1*FRAMES, function() inst.components.knownlocations:RememberLocation("home", Vector3(inst.Transform:GetWorldPosition()), true) end)
 
@@ -299,11 +334,12 @@ local function fn()
     --inst.components.tiletracker:SetOnWaterChangeFn(OnWaterChange)
 
     local teamattacker = inst:AddComponent("teamattacker")
-    teamattacker.team_type = "vampirebat"
+    teamattacker:SetValidMemberFn(IsValidMember)
+    teamattacker.team_type = "bat" --"um_vampirebat"
 
     inst:ListenForEvent("attacked", OnAttacked)
+    inst:ListenForEvent("newcombattarget", OnNewCombatTarget)
     inst:ListenForEvent("onattackother", OnAttackOther)
-    inst:ListenForEvent("wingdown", OnWingDown)
     --inst:ListenForEvent("death", OnKilled)
 
     local acidinfusible = inst:AddComponent("acidinfusible")
@@ -319,10 +355,8 @@ local function fn()
     inst.OnEntityWake = OnEntityWake
     inst.OnPreLoad = OnPreLoad
 
-    inst.OnSave = onsave
-    inst.OnLoad = onload
-
-    inst.cavebat = false
+    --[[inst.OnSave = onsave
+    inst.OnLoad = onload]]
 
     return inst
 end

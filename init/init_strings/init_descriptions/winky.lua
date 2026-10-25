@@ -169,7 +169,11 @@ DESCRIBE.AIR_CONDITIONER = "This Smells terrible! I do not like this fragrance."
 DESCRIBE.SKELETONMEAT = "Stringy meat"
 DESCRIBE.CHIMP = DESCRIBE.MONKEY
 DESCRIBE.SWILSON = "Which one are you again?"
-DESCRIBE.UM_VAMPIREBAT = "Meaner bigger ugly thing that does not look like me."
+DESCRIBE.UM_VAMPIREBAT =
+{
+    GENERIC = "Meaner bigger ugly thing that does not look like me.",
+    ACID = STRINGS.CHARACTERS.GENERIC.DESCRIBE.BAT.ACID, -- in acid form
+}
 DESCRIBE.CRITTERLAB_REAL = DESCRIBE.CRITTERLAB
 DESCRIBE.CRITTERLAB_REAL_BROKEN = "I should leave it like that."
 DESCRIBE.CHARLIEPHONOGRAPH_100 = DESCRIBE.MAXWELLPHONOGRAPH

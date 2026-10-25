@@ -72,7 +72,8 @@ local function LightningCharged_OnEntitySleep(inst)
 end
 
 local function LightningSpearPostInitFn_Charged(inst)
-    inst.empowered = true
+    inst:AddTag("um_empowered")
+    inst.um_empowered = true
     inst.SetFxOwner = LightningCharged_SetFxOwner
     inst.OnStopFloating = LightningCharged_OnStopFloating
 
@@ -87,10 +88,6 @@ local function LightningSpearPostInitFn_Charged(inst)
     inst:SetFxOwner(nil)
     --inst.fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
 
-    inst:AddComponent("named")
-    inst.components.named.possiblenames = {STRINGS.NAMES["STAFF_TORNADO_LIGHTNING"]}
-    inst.components.named:PickNewName()
-
 
     inst.OnEntityWake  = LightningCharged_OnEntityWake
     inst.OnEntitySleep = LightningCharged_OnEntitySleep
@@ -98,7 +95,6 @@ local function LightningSpearPostInitFn_Charged(inst)
     inst:ListenForEvent("exitlimbo", inst.OnEntityWake)
     inst:ListenForEvent("enterlimbo", inst.OnEntitySleep)
 end
-
 
 ---------------------------
 local function GetMousePosition(inst)
@@ -113,99 +109,119 @@ env.AddPrefabPostInit("tornado", function(inst)
     if not TheWorld.ismastersim then return end
 end)
 
+local _displaynamefn
+local function DisplayNameFn(inst, ...)
+    return inst:HasTag("um_empowered") and STRINGS.NAMES.STAFF_TORNADO_LIGHTNING or _displaynamefn and _displaynamefn(inst, ...) or nil
+end
+
+local function getspawnlocation(inst, target)
+    local x1, y1, z1 = inst.Transform:GetWorldPosition()
+    local x2, y2, z2 = target.Transform:GetWorldPosition()
+    return x1 + .15 * (x2 - x1), 0, z1 + .15 * (z2 - z1)
+end
+
+local function CastSpell(staff, target, pos)
+    for i = 1, (staff.um_empowered and 3 or 1) do
+        local tornado = SpawnPrefab("tornado", staff.linked_skinname, staff.skin_id)
+        tornado.WINDSTAFF_CASTER = staff.components.inventoryitem.owner
+        tornado.WINDSTAFF_CASTER_ISPLAYER = tornado.WINDSTAFF_CASTER ~= nil and tornado.WINDSTAFF_CASTER:HasTag("player")
+        local x,y,z = getspawnlocation(staff, target)
+        tornado.Transform:SetPosition(x,y,z)
+        tornado.components.knownlocations:RememberLocation("target", target:GetPosition())
+
+        if tornado.WINDSTAFF_CASTER_ISPLAYER then
+            tornado.overridepkname = tornado.WINDSTAFF_CASTER:GetDisplayName()
+            tornado.overridepkpet = true
+        end
+
+        if staff.um_empowered then
+            tornado.Transform:SetPosition(x+math.random(-1,1),0,z+math.random(-1,1))
+            tornado:SetDuration(3*TUNING.TORNADO_LIFETIME)
+            tornado.Transform:SetScale(0.8,0.8,0.8)
+            tornado:DoPeriodicTask(0.5,function(tornado) 
+                local pos = GetMousePosition(tornado)
+                if pos then
+                    tornado.components.knownlocations:RememberLocation("target", pos) 
+                end
+            end)
+        end
+    end
+    staff.components.finiteuses:Use(1)
+end
+
+local _OnEquip
+local function OnEquip(inst, owner, ...)
+    if inst.fx then
+        inst:SetFxOwner(owner)
+
+        if owner.SoundEmitter then
+            owner.SoundEmitter:PlaySound("meta3/wigfrid/spear_wathrithr_lightning_charged", CHARGE_SOUND_LOOP_NAME)
+        end
+    end
+    return _OnEquip and _OnEquip(inst, owner, ...)
+end
+
+local _OnUnequip
+local function OnUnequip(inst, owner, ...)
+    if inst.fx then
+        inst:SetFxOwner(nil)
+
+        if owner.SoundEmitter then
+            owner.SoundEmitter:KillSound(CHARGE_SOUND_LOOP_NAME)
+        end
+    end
+    return _OnUnequip and _OnUnequip(inst, owner, ...)
+end
+
+local _OnSave
+local function OnSave(inst, data, ...)
+    data.um_empowered = inst.um_empowered
+    return _OnSave and _OnSave(inst, data, ...)
+end
+
+local _OnLoad
+local function OnLoad(inst, data, ...)
+    if data and data.um_empowered then
+        LightningSpearPostInitFn_Charged(inst)
+    end
+    return _OnLoad and _OnLoad(inst, data, ...)
+end
+
 env.AddPrefabPostInit("staff_tornado", function(inst)
+    if not _displaynamefn then
+        _displaynamefn = inst.displaynamefn
+    end
+    inst.displaynamefn = DisplayNameFn
+
     if not TheWorld.ismastersim then return end
 
     inst.ChargeUp = LightningSpearPostInitFn_Charged
 
-    if inst.components.spellcaster ~= nil then
-        inst.components.spellcaster.canonlyuseonlocomotors = true
+    local spellcaster = inst.components.spellcaster
+    if spellcaster then
+        spellcaster.canonlyuseonlocomotors = true
+        --local _spellfn = spellcaster.spell -- Need to reference the local variable tornado somehow, overriding till possible.
+        spellcaster:SetSpellFn(CastSpell)
     end
 
-    local onequip_ = inst.components.equippable.onequipfn
-    local function OnEquip(inst,owner)
-        if inst.fx ~= nil then
-            inst:SetFxOwner(owner)
-
-            if owner.SoundEmitter ~= nil then
-                owner.SoundEmitter:PlaySound("meta3/wigfrid/spear_wathrithr_lightning_charged", CHARGE_SOUND_LOOP_NAME)
-            end
+    local equippable = inst.components.equippable
+    if equippable then
+        if not _OnEquip then
+            _OnEquip = equippable.onequipfn
         end
-        onequip_(inst, owner)
+        equippable:SetOnEquip(OnEquip)
+        if not _OnUnequip then
+            _OnUnequip = equippable.onunequipfn
+        end
+        equippable:SetOnUnequip(OnUnequip)
     end
 
-    local onunequip_ = inst.components.equippable.onunequipfn
-    local function OnUnEquip(inst,owner)
-        if inst.fx ~= nil then
-            inst:SetFxOwner(nil)
-
-            if owner.SoundEmitter ~= nil then
-                owner.SoundEmitter:KillSound(CHARGE_SOUND_LOOP_NAME)
-            end
-        end
-        onunequip_(inst, owner)
+    if not _OnSave then
+        _OnSave = inst.OnSave
     end
-
-    inst.components.equippable:SetOnEquip(OnEquip)
-    inst.components.equippable:SetOnUnequip(OnUnEquip)    
-
-    local _spellfn = inst.components.spellcaster.spell -- Need to reference the local variable tornado somehow, overriding till possible.
-    local function getspawnlocation(inst, target)
-        local x1, y1, z1 = inst.Transform:GetWorldPosition()
-        local x2, y2, z2 = target.Transform:GetWorldPosition()
-        return x1 + .15 * (x2 - x1), 0, z1 + .15 * (z2 - z1)
+    inst.OnSave = OnSave
+    if not _OnLoad then
+        _OnLoad = inst.OnLoad
     end
-
-    local function CastSpell(staff, target, pos)
-        staff.components.finiteuses:Use(1)
-        for i = 1,(inst.empowered and 3 or 1) do
-            local tornado = SpawnPrefab("tornado", staff.linked_skinname, staff.skin_id)
-            tornado.WINDSTAFF_CASTER = staff.components.inventoryitem.owner
-            tornado.WINDSTAFF_CASTER_ISPLAYER = tornado.WINDSTAFF_CASTER ~= nil and tornado.WINDSTAFF_CASTER:HasTag("player")
-            local x,y,z = getspawnlocation(staff, target)
-            tornado.Transform:SetPosition(x,y,z)
-            tornado.components.knownlocations:RememberLocation("target", target:GetPosition())
-
-            if tornado.WINDSTAFF_CASTER_ISPLAYER then
-                tornado.overridepkname = tornado.WINDSTAFF_CASTER:GetDisplayName()
-                tornado.overridepkpet = true
-            end
-
-            if inst.empowered then
-                tornado.Transform:SetPosition(x+math.random(-1,1),0,z+math.random(-1,1))
-                tornado:SetDuration(3*TUNING.TORNADO_LIFETIME)
-                tornado.Transform:SetScale(0.8,0.8,0.8)
-                tornado:DoPeriodicTask(0.5,function(tornado) 
-                    local pos = GetMousePosition(tornado)
-                    if pos then
-                        tornado.components.knownlocations:RememberLocation("target", pos) 
-                    end
-                end)
-            end
-        end
-    end
-
-    inst.components.spellcaster:SetSpellFn(CastSpell)
-
-    local old_OnSave = inst.OnSave
-    inst.OnSave = function(inst, data, ...)
-        if inst.empowered then
-            data.empowered = inst.empowered
-        end
-
-        if old_OnSave ~= nil then
-            return old_OnSave(inst, data, ...)
-        end
-    end
-
-    local old_OnLoad = inst.OnLoad
-    inst.OnLoad = function(inst, data, ...)
-        if data and data.empowered then
-            LightningSpearPostInitFn_Charged(inst)
-        end
-
-        if old_OnLoad ~= nil then
-            return old_OnLoad(inst, data, ...)
-        end
-    end
+    inst.OnLoad = OnLoad
 end)

@@ -2,10 +2,10 @@ local env = env
 GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------
 do
-    SetSharedLootTable('catty',
+    SetSharedLootTable("catty",
     {
-        { 'meat',     1.00 },
-        { 'coontail', 1.00 },
+        {"meat", 1},
+        {"coontail", 1},
     })
 
     local function OnAttackOther(inst, data)
@@ -66,9 +66,7 @@ do
             health:SetMaxHealth(TUNING.DSTU.MONSTER_CATCOON_HEALTH_CHANGE)
         end
 
-        if lootdropper then
-            lootdropper:SetChanceLootTable('catty')
-        end
+        if lootdropper then lootdropper:SetChanceLootTable("catty") end
 
         if combat then
             combat:SetRange(TUNING.CATCOON_ATTACK_RANGE / 1.5) --Lower the range

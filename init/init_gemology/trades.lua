@@ -1,20 +1,20 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
-
+-----------------------------------------------------------------
 
 local function RetargetSnaildrakeFn(inst)
     if inst.components.combat:HasTarget() then
         return
     end
 
-    local new_target = FindEntity(inst, TUNING.SNAILDRAKE_AGGRO_DIST, function(ent)
+    local newtarget = FindEntity(inst, TUNING.SNAILDRAKE_AGGRO_DIST, function(ent)
         return inst.components.combat:CanTarget(ent)
     end, nil, { "snaildrake", "player" })                                                                    -- AXE They like people now
 
     if newtarget then
-        local leader = new_target.components.follower and new_target.components.follower:GetLeader() -- AXE Make them not aggro on your followers
+        local leader = newtarget.components.follower and newtarget.components.follower:GetLeader() -- AXE Make them not aggro on your followers
         if not (leader and leader:HasTag("player")) then
-            inst.components.combat:SuggestTarget(new_target)
+            inst.components.combat:SuggestTarget(newtarget)
         end
     end
 end
@@ -24,6 +24,7 @@ local function BeFriendlyToPlayers(inst)
 
     -- Old Values
     self._targetfn = self.targetfn
+    self._retargetperiod = self.retargetperiod
     if inst.prefab == "snaildrake_slime" or inst.prefab == "snaildrake_magma" then
         inst.components.combat:SetRetargetFunction(3, RetargetSnaildrakeFn)
     end
@@ -255,9 +256,7 @@ env.AddBrainPostInit("slurtlebrain", function(self)
     FindStealNode(self)
 end)
 
-
 -- Antlion
-
 local function GetAntlionReward(inst)
     local gem = inst.pendingrewarditem
     local tier = inst.pendingrewardtier_gemology

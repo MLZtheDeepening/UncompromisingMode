@@ -147,7 +147,11 @@ DESCRIBE.SALTPACK = "This pack would've been useful back in Canada, eh?"
 DESCRIBE.SKELETONMEAT = "Don't hurl, don't hurl, don't hurl..."
 DESCRIBE.CHIMP = DESCRIBE.MONKEY
 DESCRIBE.SWILSON = "An axe fight, eh?"
-DESCRIBE.UM_VAMPIREBAT = "You're a bit batty, eh?"
+DESCRIBE.UM_VAMPIREBAT =
+{
+    GENERIC = "You're a bit batty, eh?",
+    ACID = DESCRIBE.BAT.ACID, -- in acid form
+}
 
 -- Swampyness
 DESCRIBE.RICEPLANT = "Looks like some grub."

@@ -1,16 +1,16 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 
-local SpDamageUtil = require("components/spdamageutil")
+--[[local SpDamageUtil = require("components/spdamageutil")
 
 local function HasSkill(inst, name)
     return inst.components.skilltreeupdater and inst.components.skilltreeupdater:IsActivated(name)
-end
+end]]
 
-local function GetAttackedPostInit(self, fn)
-	local _GetAttackedOrInternal = self[fn]
-	self[fn] = function(self, attacker, damage, weapon, stimuli, spdamage, from_doattack, ...)
-        if TUNING.DSTU.BUTTERFLYWINGS_NERF == "unique" and fn == "GetAttacked_Internal" and from_doattack and self.inst.UMSlipAway and self.inst:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}) then
+env.AddComponentPostInit("combat", function(self)
+	local _GetAttacked_Internal = self.GetAttacked_Internal
+	function self:GetAttacked_Internal(attacker, damage, weapon, stimuli, spdamage, from_doattack, ...)
+        if TUNING.DSTU.BUTTERFLYWINGS_NERF == "unique" and from_doattack and self.inst.UMSlipAway and self.inst:UMSlipAway({attacker = attacker, weapon = weapon, stimuli = stimuli}) then
             if attacker and weapon and weapon:IsValid() then
                 attacker:PushEvent("um_attacker_attacked_pst", {weapon = weapon})
             end
@@ -103,12 +103,12 @@ local function GetAttackedPostInit(self, fn)
         if TUNING.DSTU.BEEFALO_NERF and damageredirecttarget and damageredirecttarget.components.rideable then
             local redirect_combat = damageredirecttarget.components.combat
             if redirect_combat then
-                redirect_combat[fn](redirect_combat, attacker, damage, weapon, stimuli, spdamage, from_doattack, ...)
+                redirect_combat:GetAttacked_Internal(attacker, damage, weapon, stimuli, spdamage, from_doattack, ...)
                 damage, stimuli = damage / 2, "beefalo_half_damage" -- added new stimuli to prevent Stackoverflow
             end
         end
 
-        local ret = {_GetAttackedOrInternal(self, attacker, damage, weapon, stimuli, spdamage, from_doattack, ...)}
+        local ret = {_GetAttacked_Internal(self, attacker, damage, weapon, stimuli, spdamage, from_doattack, ...)}
 
         if attacker and attacker:IsValid() and weapon and weapon:IsValid() then
             attacker:PushEvent("um_attacker_attacked_pst", {weapon = weapon})
@@ -116,11 +116,6 @@ local function GetAttackedPostInit(self, fn)
 
         return unpack(ret)
 	end
-end
-
-local KLEI_BETA_CHANGES = UPDATE_CHECK
-env.AddComponentPostInit("combat", function(self)
-    GetAttackedPostInit(self, KLEI_BETA_CHANGES and "GetAttacked_Internal" or "GetAttacked")
 
     -- Peerless jade effect, if there is an existing damage multiplier, increase it by some amount more
     local _CalcDamage = self.CalcDamage
@@ -169,7 +164,7 @@ env.AddComponentPostInit("combat", function(self)
     local AREA_EXCLUDE_TAGS = {"INLIMBO", "notarget", "noattack", "flight", "invisible"}
     local _DoAttack = self.DoAttack
     function self:DoAttack(targ, weapon, projectile, stimuli, instancemult, instrangeoverride, instpos, ...)
-        local sliptarget = TUNING.DSTU.BUTTERFLYWINGS_NERF == "unique" and KLEI_BETA_CHANGES and (targ or self.target)
+        local sliptarget = TUNING.DSTU.BUTTERFLYWINGS_NERF == "unique" and (targ or self.target)
         if sliptarget and sliptarget.UMSlipAway then
             if instrangeoverride then self.temprange = instrangeoverride end
             if instpos then self.temppos = instpos end
@@ -196,10 +191,11 @@ env.AddComponentPostInit("combat", function(self)
             local radius = FunctionOrValue(self.um_areahitrange, self)
             local x, y, z = self.inst.Transform:GetWorldPosition()
             for i, ent in ipairs(TheSim:FindEntities(x, y, z, radius + 3, AREAATTACK_MUST_TAGS, self.um_areahitexcludetags and JoinArrays(self.um_areahitexcludetags, AREA_EXCLUDE_TAGS) or AREA_EXCLUDE_TAGS)) do
-                local range = radius + ent:GetPhysicsRadius(0)
+                local ent_radius = ent:GetPhysicsRadius(0)
+                local range = radius + ent_radius
                 if ent ~= self.inst and ent:IsValid() and not (ent.components.health and ent.components.health:IsDead()) and self:CanTarget(ent)
                     and self.inst:IsNear(ent, range) and (self.um_areahitconecheck and not self.um_areahitconecheck(ent, self.inst)
-                    or self.inst:IsEntityInFrontConeSlice(ent, self.um_areahitconeangle or 160, range, self.um_areahitcircleradius and FunctionOrValue(self.um_areahitcircleradius, self) + ent:GetPhysicsRadius(0) or nil))
+                    or self.inst:IsEntityInFrontConeSlice(ent, self.um_areahitconeangle or 160, range, self.um_areahitcircleradius and FunctionOrValue(self.um_areahitcircleradius, self) + ent_radius or nil))
                     and (not self.um_areahitcheck or self.um_areahitcheck(ent, self.inst)) then
                     self:DoAttack(ent, weapon, projectile, stimuli, instancemult, instrangeoverride, instpos, ...)
                 end

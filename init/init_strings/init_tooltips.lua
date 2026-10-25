@@ -29,7 +29,6 @@ STRINGS.UNCOMP_TOOLTIP = {
     --BLOWDART_YELLOW = "- Shocks creatures for longer.",
     DRAGONFLYCHEST = "- Has even more item slots.",
     WARDROBE = "- Can store a lot of equipment.",
-    WINONA_SPOTLIGHT = "- Significantly increased range.\n- Doubled radius.",
     BANDAGE = "- Restores a bit of extra health over time.",
     SISTURN = "- Petals inside decay into Mourning Glory.",
     MULTITOOL_AXE_PICKAXE = "- Creates shockwaves when chopping/mining.",
@@ -429,12 +428,20 @@ end
 --TOOLTIPS.BOOK_BEES = "- Now adds Honey to 10 nearby Bee Boxes.\n- Doesn't work during Dusk, Night and/or Winter."
 --end
 
+STRINGS.LUNAR_MELODIST_TOOLTIP = {}
 if TUNING.DSTU.WATHGRITHR_REWORK.ENABLED then
     TOOLTIPS.SPEAR_WATHGRITHR_LIGHTNING = "- Regains durability when struck by lightning or when charged at generators."
     TOOLTIPS.WATHGRITHR_SHIELD = "- Blocking attacks will consume durability by 10% of the damage taken.\n - The time penalty for a failed parry is reduced to half.\n -Parry duration has been incorportated into the item by default."
     TOOLTIPS.WATHGRITHR_SHIELD_DREADSTONE = "- Scares attackers.\n - Effects stack with dreadstone armor."
     TOOLTIPS.SADDLE_WATHGRITHR = "- Increased damage."
     TOOLTIPS.BATTLESONG_DURABILITY = "- Now works on shields."
+    STRINGS.LUNAR_MELODIST_TOOLTIP = {
+        BATTLESONG_DURABILITY = "- Also reduces armor durability loss.",
+        BATTLESONG_HEALTHGAIN = "- Slowly regenerates health overtime.",
+        BATTLESONG_SANITYGAIN = "- Slowly regenerate sanity overtime.",
+        BATTLESONG_SANITYAURA = "- Higher resistance to negative sanity auras.",
+        BATTLESONG_FIRERESISTANCE = "- Provides some summer insulation.",
+    }
 end
 
 if TUNING.DSTU.DISABLE_MEGAFLARE then

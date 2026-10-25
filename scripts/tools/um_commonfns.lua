@@ -32,7 +32,7 @@ end
 
 UMCommonFns.KNOCKBACK_CANT_TAGS = {"heavybody", "fat_gang", "foodknockbackimmune"}
 UMCommonFns.KNOCKBACK_ARMOR_CANT_TAGS = {"heavyarmor", "knockback_protection"}
-function UMCommonFns.ShouldKnockback(inst, notknockedback)
+function UMCommonFns.ShouldKnockback(inst)
     local inventory = inst.components.inventory
     local bodyslot = inventory and inventory:GetEquippedItem(EQUIPSLOTS.BODY)
     return not inst:HasAnyTag(UMCommonFns.KNOCKBACK_CANT_TAGS) and not (inst.sg and inst.sg:HasStateTag("shell")) and not (inst.components.rider and inst.components.rider:IsRiding())
@@ -61,15 +61,6 @@ function UMCommonFns.IsNotFriendly(attacker, target) -- Is the target an ally or
     local leadercombat = leader and leader.components.combat
     return attackercombat and (attackercombat.target == target or attackercombat:CanTarget(target) and not attackercombat:IsAlly(target)
         and (not leader or leadercombat and leadercombat:CanTarget(target) and not leadercombat:IsAlly(target)))
-end
-
-function UMCommonFns.IsRangedWeapon(ent)
-    if UPDATE_CHECK and IsRangedWeapon then return IsRangedWeapon(ent) end
-    return ent ~= nil and
-        (    ent.components.projectile ~= nil or
-            (ent.components.weapon ~= nil and ent.components.weapon:CanRangedAttack()) or
-            ent:HasTag("pseudorangedweapon")
-        )
 end
 
 local SpDamageUtil = require("components/spdamageutil")

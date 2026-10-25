@@ -274,13 +274,20 @@ local states=
         tags = {"attack", "busy"},
 
         onenter = function(inst, cb)
+            if (not inst.flamecount or inst.flamecount < 1) and inst.components.combat and inst.components.combat.target then
+                inst:ForceFacePoint(inst.components.combat.target:GetPosition())
+            end
             inst.Physics:Stop()
             inst.AnimState:PlayAnimation("flame_loop", false)
         end,
 
         onupdate = function(inst)
-            if inst.components.combat and inst.components.combat.target then
-                inst:ForceFacePoint(inst.components.combat.target:GetPosition())
+            local target = inst.components.combat and inst.components.combat.target
+            if target then
+                local t_rot = inst:GetAngleToPoint(target:GetPosition())
+                local rot = inst:GetRotation()
+                local drot = math.clamp(ReduceAngle(t_rot - rot), -3, 3)
+                inst.Transform:SetRotation(rot + drot)
             end
         end,
 
