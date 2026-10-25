@@ -122,7 +122,7 @@ local prefab_post = {
     --"malbatross",
     "mushrooms",
     "rock_ice",
-    "oasislake",
+    --"oasislake",
     --"shadowcreature",
     "lureplant",
     "spiderden",
