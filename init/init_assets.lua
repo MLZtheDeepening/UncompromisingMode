@@ -345,12 +345,6 @@ local inventoryitems =
     "ms_twisted_antler",
     "ms_um_trans_bomb_moon",
 
-    --winona stuff
-    "winona_battery_low_item_um",
-    "winona_battery_high_item_um",
-    "winona_spotlight_item_um",
-    "winona_catapult_item_um",
-
     --crab king items
     "hat_crab",
     "staff_starfall",
@@ -2000,6 +1994,9 @@ Assets = {
 
     Asset("IMAGE", "images/engineering_tip.tex"),
     Asset("ATLAS", "images/engineering_tip.xml"),
+
+    Asset("IMAGE", "images/LM_TT.tex"),
+    Asset("ATLAS", "images/LM_TT.xml"),
 
     --SOUND
     Asset("SOUNDPACKAGE", "sound/UCSounds.fev"),

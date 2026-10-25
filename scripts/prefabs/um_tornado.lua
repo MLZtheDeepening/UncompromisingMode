@@ -194,7 +194,7 @@ local function TornadoEnviromentTask(inst)
         local items_pick = TheSim:FindEntities(x, y, z, 6, {"_inventoryitem"}, {"irreplaceable", "tornado_nosucky", "trap", "INLIMBO", "heavy", "backpack"}) --no dome check because dome component adds nosucky tag.
         for k, v in ipairs(items_pick) do
             if v.prefab == "staff_tornado" then
-                if not v.empowered and v.ChargeUp then
+                if not v.um_empowered and v.ChargeUp then
                     v:ChargeUp()
                     SpawnPrefab("lightning").Transform:SetPosition(v.Transform:GetWorldPosition())
                 end

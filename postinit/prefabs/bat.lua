@@ -1,11 +1,11 @@
 local env = env
 GLOBAL.setfenv(1, GLOBAL)
 -----------------------------------------------------------------
-SetSharedLootTable('batty',
+SetSharedLootTable("batty",
 {
-    {'batwing',    0.15},
-    {'guano',      0.15},
-    {'monstersmallmeat',0.10},
+    {"batwing", .15},
+    {"guano", .15},
+    {"monstersmallmeat", .1},
 })
 
 local _OnSave
@@ -27,9 +27,8 @@ env.AddPrefabPostInit("bat", function(inst)
 		return
 	end
 
-	if inst.components.lootdropper then
-		inst.components.lootdropper:SetChanceLootTable('batty')
-	end
+    local lootdropper = inst.components.lootdropper
+    if lootdropper then lootdropper:SetChanceLootTable("batty") end
 
     if not _OnSave then
         _OnSave = inst.OnSave

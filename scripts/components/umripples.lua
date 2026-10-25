@@ -82,7 +82,7 @@ end
 local function GetBodyWetnessProtection(inst)
     local body = GetBodyItem(inst)
     local waterproofer = body and body.components.waterproofer
-    return waterproofer and waterproofed:GetEffectiveness() or 0
+    return waterproofer and waterproofer:GetEffectiveness() or 0
 end
 
 local function AdjustSpeed(inst)
@@ -111,12 +111,12 @@ local function AdjustSpeed(inst)
     inst.components.locomotor:SetExternalSpeedMultiplier(inst, "um_floodedwater", mod)
 end
 
-local no_water = { "flying", "shadow", "worm", "playerghost", "brightmare", "brightmare_gestalt" }
+--[[local no_water = { "flying", "shadow", "worm", "playerghost", "brightmare", "brightmare_gestalt" }
 
 local function IsFloodWater(inst)
     local current_tile = TheWorld.Map:GetTileAtPoint(inst.Transform:GetWorldPosition())
     return current_tile == WORLD_TILES.UM_FLOODWATER or current_tile == WORLD_TILES.UM_FLOODWATER_GROTTO
-end
+end]]
 
 local function FloodMoistureRamp(inst)
     local moisture = inst.components.moisture

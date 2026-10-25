@@ -209,7 +209,6 @@ env.AddStategraphPostInit("hound", function(inst)
                 if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
                     inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
                 end
-                inst.burning_anim_count = 0
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("scared_pst")
             end,
@@ -359,7 +358,6 @@ env.AddStategraphPostInit("hound", function(inst)
                 if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
                     inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
                 end
-                inst.burning_anim_count = 0
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("scared_pst")
             end,
@@ -375,13 +373,22 @@ env.AddStategraphPostInit("hound", function(inst)
 
             onenter = function(inst, target)
                 inst.sg.statemem.target = GetTargetForState(target, inst)
-                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                if not inst.burning_anim_count and inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
                     inst:ForceFacePoint(inst.sg.statemem.target:GetPosition())
                 end
                 --inst.Transform:SetFourFaced()
-                inst.burning_anim_count = inst.burning_anim_count + 1 or 0
+                inst.burning_anim_count = (inst.burning_anim_count or 0) + 1
                 inst.Physics:Stop()
                 inst.AnimState:PlayAnimation("belch")
+            end,
+
+            onupdate = function(inst)
+                if inst.sg.statemem.target and inst.sg.statemem.target:IsValid() then
+                    local t_rot = inst:GetAngleToPoint(inst.sg.statemem.target:GetPosition())
+                    local rot = inst:GetRotation()
+                    local drot = math.clamp(ReduceAngle(t_rot - rot), -3, 3)
+                    inst.Transform:SetRotation(rot + drot)
+                end
             end,
 
             timeline =
@@ -399,7 +406,7 @@ env.AddStategraphPostInit("hound", function(inst)
                     if inst.burning_anim_count < 6 then
                         inst.sg:GoToState("burning_howl_attack", inst.sg.statemem.target)
                     else
-                        inst.burning_anim_count = 0
+                        inst.burning_anim_count = nil
                         inst.sg:GoToState("idle")
                     end
                 end),

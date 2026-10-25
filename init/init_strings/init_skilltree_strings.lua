@@ -5,9 +5,9 @@ if SkillTreeDefs.SKILLTREE_DEFS["wilson"] ~= nil then
     SkillTreeDefs.SKILLTREE_DEFS["wilson"].wilson_alchemy_4.desc = STRINGS.SKILLTREE.WILSON.WILSON_ALCHEMY_4_DESC .. "\nTransform 3 Monster Morsels into a Monster Meat.\nTransform a Monster Meat into 2 Monster Morsels."
 end
 
---[[if SkillTreeDefs.SKILLTREE_DEFS["willow"] ~= nil then --Desn't work rn :( -CB
-    SkillTreeDefs.SKILLTREE_DEFS["willow"].willow_attuned_lighter.desc = STRINGS.SKILLTREE.WILLOW.WILLOW_ATTUNED_LIGHTER_DESC .. " 󰀕ACan also absorb Smog."
-end]]
+if SkillTreeDefs.SKILLTREE_DEFS["willow"] ~= nil then --Works rn :) (Thanks, Shy) -CB
+    SkillTreeDefs.SKILLTREE_DEFS["willow"].willow_attuned_lighter.desc = STRINGS.SKILLTREE.WILLOW.WILLOW_ATTUNED_LIGHTER_DESC .. " 󰀕Can also absorb Summer's Smog."
+end
 
 if SkillTreeDefs.SKILLTREE_DEFS["wurt"] ~= nil then --need to do a config check for grotto later probably yeah -CB
     SkillTreeDefs.SKILLTREE_DEFS["wurt"].wurt_pathfinder.desc = STRINGS.SKILLTREE.WURT.WURT_PATHFINDER_DESC .. "\n󰀕Same applies to flooded regions."
@@ -164,7 +164,7 @@ STRINGS.SKILLTREE.WATHGRITHR.WATHGRITHR_ARSENAL_SPEAR_1_TITLE = "Sturdy Spear I"
 STRINGS.SKILLTREE.WATHGRITHR.WATHGRITHR_ARSENAL_SPEAR_1_DESC = "Combat Spears are 10% more durable when used by Wigfrid."
 STRINGS.SKILLTREE.WATHGRITHR.WATHGRITHR_ARSENAL_SPEAR_2_TITLE = "Sturdy Spear II"
 STRINGS.SKILLTREE.WATHGRITHR.WATHGRITHR_ARSENAL_SPEAR_2_DESC = "Combat Spears are 20% more durable when used by Wigfrid."
-STRINGS.SKILLTREE.WATHGRITHR.WATHGRITHR_ARSENAL_SPEAR_3_DESC = "Learn to craft the Elding Spear: an electrical weapon that does more damage to wet targets.\nIt can be recharged like other UM Electrical Weapons."
+STRINGS.SKILLTREE.WATHGRITHR.WATHGRITHR_ARSENAL_SPEAR_3_DESC = "Learn to craft the Elding Spear: an electrical weapon that does more damage to wet targets.\nIt can be recharged like other electrical equipment."
 STRINGS.SKILLTREE.WATHGRITHR.WATHGRITHR_ARSENAL_SPEAR_4_DESC = "The Elding Spear can perform a special attack."
 STRINGS.SKILLTREE.WATHGRITHR.WATHGRITHR_ARSENAL_SPEAR_5_DESC = "Upgrade the Elding Spear using Restrained Static to deal +20 Planar Damage."
 STRINGS.SKILLTREE.WATHGRITHR.WATHGRITHR_ARSENAL_HELMET_1_DESC = "Battle Helms are 10% more durable when worn by Wigfrid."

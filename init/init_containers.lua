@@ -803,7 +803,7 @@ containers.params.um_cookpot_wagstaff =
         side_align_tip = 100,
         buttoninfo =
         {
-            text = "Atomize",
+            text = STRINGS.UI.UM_COOKPOT_WAGSTAFF_COOK,
             position = Vector3(0, -165, 0),
         }
     },

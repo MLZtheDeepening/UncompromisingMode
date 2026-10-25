@@ -122,7 +122,7 @@ local prefab_post = {
     --"malbatross",
     "mushrooms",
     "rock_ice",
-    "oasislake",
+    --"oasislake",
     --"shadowcreature",
     "lureplant",
     "spiderden",
@@ -620,3 +620,4 @@ if TUNING.DSTU.ARMORREWORK then
 end
 
 modimport("scripts/um_fxlist")
+modimport("scripts/um_corpse_defs")
