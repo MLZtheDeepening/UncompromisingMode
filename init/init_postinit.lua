@@ -620,3 +620,4 @@ if TUNING.DSTU.ARMORREWORK then
 end
 
 modimport("scripts/um_fxlist")
+modimport("scripts/um_corpse_defs")

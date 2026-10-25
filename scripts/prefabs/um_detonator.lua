@@ -5,7 +5,7 @@ local assets =
     Asset("ANIM", "anim/um_detonator.zip"),
 }
 
-local function ShouldRepeatCast(inst, doer)
+--[[local function ShouldRepeatCast(inst, doer)
     return not inst:HasTag("usesdepleted")
 end
 
@@ -26,7 +26,7 @@ local function PingCatapult(inst, doer, pos, catapult)
     ping.AnimState:SetAddColour(0.2, 0.2, 0.2, 0)
 
     return true
-end
+end]]
 
 --------------------------------------------------------------------------
 
@@ -78,11 +78,9 @@ end
 local function ExplodeSpellFn(inst, doer, pos)
     for i, v in ipairs(TheSim:FindEntities(pos.x, pos.y, pos.z, 4)) do
         if v:IsValid() then
-            if v:HasTag("INLIMBO") and v.components.inventoryitem and not TheNet:GetPVPEnabled() then
-                local owner = v.components.inventoryitem:GetGrandOwner()
-                if owner ~= nil and owner:HasTag("player") and owner ~= doer then
-                    return
-                end
+            local owner = v.components.inventoryitem and v.components.inventoryitem:GetGrandOwner()
+            if owner and owner:HasTag("player") and owner ~= doer and not TheNet:GetPVPEnabled() then
+                return
             end
 
             if v.prefab == "spore_moon" then -- Spores
@@ -90,9 +88,10 @@ local function ExplodeSpellFn(inst, doer, pos)
                 v.sg:GoToState("pre_pop")
             end
 
-            if IsStandardExplosive(v.prefab) and v.components.explosive then -- Gunpowder, the likes
+            local explosive, mine = v.components.explosive, v.components.mine
+            if IsStandardExplosive(v.prefab) and explosive then -- Gunpowder, the likes
                 inst.components.finiteuses:Use(1)
-                v.components.explosive:OnBurnt()
+                explosive:OnBurnt()
             end
 
             if IsExplosiveEnemy(v.prefab) then                                  -- Exploding enemies, mostly UM
@@ -100,23 +99,19 @@ local function ExplodeSpellFn(inst, doer, pos)
                     inst.components.finiteuses:Use(50)
                     v:DoExplosion()
                     v.components.combat:GetAttacked(doer, 100, nil)
-                elseif v.components.explosive then
+                elseif explosive then
                     inst.components.finiteuses:Use(50)
-                    v.components.explosive:OnBurnt()
+                    explosive:OnBurnt()
                 elseif v.components.health and not v.components.health:IsDead() then
                     inst.components.finiteuses:Use(50)
                     v.components.health:Kill()
                 end
             end
 
-            if v.components.mine then
+            if mine and not owner then
                 local target = FindNearbyTarget(pos)
                 inst.components.finiteuses:Use(1)
-                if IsMeleeMine(v.prefab) then
-                    v.components.mine:Explode()
-                else
-                    v.components.mine:Explode(target)
-                end
+                mine:Explode(not IsMeleeMine(v.prefab) and target or nil)
             end
 
             if v.components.boatcannon and v.components.boatcannon:IsAmmoLoaded() then

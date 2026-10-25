@@ -768,4 +768,4 @@ CommonStates.AddElectrocuteStates(states, nil, nil,
 CommonStates.AddInitState(states, "idle")
 CommonStates.AddCorpseStates(states)
 
-return StateGraph("vampirebat", states, events, "init", actionhandlers)
+return StateGraph("um_vampirebat", states, events, "init", actionhandlers)
