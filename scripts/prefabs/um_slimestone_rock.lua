@@ -202,15 +202,14 @@ local function RespawnRocks(inst)
     local gemless, gem = IdentifyRockDensity(inst)
     if #gemless + #gem > 12 then return end
 
-    local offset
     local prefabname = math.random() > .75 and #gem < 2 and "um_slimestone_rock" or "um_slimestone_rock_gemless"
+    local offset = FindWalkableOffset(inst:GetPosition(), TWOPI * math.random(), math.random(4, 32), 64, false, true, function(pt) return not TooCloseOtherRocks(pt, gemless, gem) end)
+
     if prefabname == "um_slimestone_rock" then
-        local monkeybarrel = FindEntity(inst, 64, function(ent) return ent.prefab == "monkeybarrel" end, function(pt) return not TooCloseOtherRocks(pt, gemless, gem) end)
+        local monkeybarrel = FindEntity(inst, 64, function(ent) return ent.prefab == "monkeybarrel" and not TooCloseOtherRocks(ent:GetPosition(), gemless, gem) end, {"cavedweller"})
         if monkeybarrel then
             offset = FindWalkableOffset(monkeybarrel:GetPosition(), TWOPI * math.random(), math.random(4, 5), 6, false, true)
         end
-    else
-        offset = FindWalkableOffset(inst:GetPosition(), TWOPI * math.random(), math.random(4, 32), 64, false, true, function(pt) return not TooCloseOtherRocks(pt, gemless, gem) end)
     end
 
     if not offset then return end
@@ -240,7 +239,7 @@ local function fnnode()
     inst:ListenForEvent("startquake", function()
         if TheWorld.state.nightmarephase == "wild" then
             inst:DoTaskInTime(math.random(4,10), function(_inst)
-                RespawnRocks(_inst)
+                _inst:RespawnRocks()
             end)
         end
     end, TheWorld.net)
