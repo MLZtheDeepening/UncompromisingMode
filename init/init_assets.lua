@@ -458,7 +458,6 @@ local inventoryitems =
     "um_magnifier_purplegem",
 
     "um_gemology_pouch",
-    --"um_gemology_pouch_open",
     "um_hat_nettlemask",
     "um_thulecite_razor",
     "uncompromising_winkyhomeburrow",

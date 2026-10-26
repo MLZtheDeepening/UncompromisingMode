@@ -19,18 +19,6 @@ local function OnPutInInventory(inst)
     inst.AnimState:PlayAnimation("idle", false)
 end
 
-local function OnSave(inst, data)
-    if inst.components.burnable ~= nil and inst.components.burnable:IsBurning() or inst:HasTag("burnt") then
-        data.burnt = true
-    end
-end
-
-local function OnLoad(inst, data)
-    if data ~= nil and data.burnt and inst.components.burnable ~= nil then
-        inst.components.burnable.onburnt(inst)
-    end
-end
-
 local function MakeTackleContainer(name, bank, build, assets)
     assets = assets or {}
     table.insert(assets, Asset("ANIM", "anim/" .. build .. ".zip"))
@@ -84,9 +72,6 @@ local function MakeTackleContainer(name, bank, build, assets)
         inst:AddComponent("lootdropper")
 
         MakeHauntableLaunch(inst)
-
-        inst.OnSave = OnSave
-        inst.OnLoad = OnLoad
 
         return inst
     end
