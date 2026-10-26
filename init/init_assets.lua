@@ -1821,8 +1821,6 @@ Assets = {
 
     Asset("ANIM", "anim/trinket_wathom1.zip"),
 
-    Asset("ANIM", "anim/winona_portables.zip"),
-
     Asset("ANIM", "anim/ui_um_cookpot_wagstaff_1x4.zip"),
 
     Asset("ATLAS", "images/wortox_lunar_stealer.xml"),

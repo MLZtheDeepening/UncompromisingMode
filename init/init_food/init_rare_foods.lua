@@ -124,29 +124,27 @@ if GetModConfigData("no_winter_growing_") then
         "bullkelp_plant",
     }
 
-    for k, v in pairs(nowintergrowing) do
-        AddPrefabPostInit(v, function(inst)
+    local function MakeNotGrowInWinter(prefab)
+        AddPrefabPostInit(prefab, function(inst)
             if not GLOBAL.TheWorld.ismastersim then return end
             GLOBAL.MakeNoGrowInWinter(inst)
         end)
+    end
+
+    for k, v in pairs(nowintergrowing) do
+        MakeNotGrowInWinter(v)
     end
 
     -- Farm Crops
     local PLANT_DEFS = require("prefabs/farm_plant_defs").PLANT_DEFS
     for k, v in pairs(PLANT_DEFS) do
-        AddPrefabPostInit(v.prefab, function(inst)
-            if not GLOBAL.TheWorld.ismastersim then return end
-            GLOBAL.MakeNoGrowInWinter(inst)
-        end)
+        MakeNotGrowInWinter(v.prefab)
     end
 
     -- Weeds
     local WEED_DEFS = require("prefabs/weed_defs").WEED_DEFS
     for k, v in pairs(WEED_DEFS) do
-        AddPrefabPostInit(v.prefab, function(inst)
-            if not GLOBAL.TheWorld.ismastersim then return end
-            GLOBAL.MakeNoGrowInWinter(inst)
-        end)
+        MakeNotGrowInWinter(v.prefab)
     end
 
     -- Extra check for Farm Crops, Banana Bushes, and Stone Fruit
@@ -160,17 +158,17 @@ if GetModConfigData("no_winter_growing_") then
         end
 
         local _StartGrowing = self.StartGrowing
-        function self:StartGrowing(time)
+        function self:StartGrowing(time, ...)
             if (self.inst:HasTag("bananabush") --[[or self.inst.prefab == "rock_avocado_bush"]]) and GLOBAL.TheWorld.state.iswinter then
                 return false
             end
-            return _StartGrowing(self, time)
+            return _StartGrowing(self, time, ...)
         end
     end)
 
     AddComponentPostInit("pickable", function(self)
         local _Resume = self.Resume
-        function self:Resume(cause, ...)
+        function self:Resume(...)
             if (self.inst:HasTag("bananabush") --[[or self.inst.prefab == "rock_avocado_bush"]]) and GLOBAL.TheWorld.state.iswinter then
                 return false
             end
