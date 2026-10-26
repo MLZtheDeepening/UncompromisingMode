@@ -121,7 +121,7 @@ if GetModConfigData("no_winter_growing_") then
         "cherrytomato_planted",
         "cactus",
         "oasis_cactus",
-        "bullkelp_plant",
+        --"bullkelp_plant",
     }
 
     local function MakeNotGrowInWinter(prefab)
