@@ -97,7 +97,7 @@ function GLOBAL.MakeNoGrowInWinter(inst, ...)
     end --making this not an elseif to do BOTH if something has both pickable and growable
     local growable = inst.components.growable
     if growable then
-        growable:WatchWorldState("iswinter", TogglePickable)
+        growable:WatchWorldState("iswinter", ToggleGrowable)
         ToggleGrowable(growable, TheWorld.state.iswinter)
     end
 end
