@@ -1058,18 +1058,19 @@ local function PoofNearby(inst)
         if v ~= inst and v:IsValid() and not v:IsInLimbo()
             and not (v.components.health ~= nil and v.components.health:IsDead()) then
             local attackable = UMCommonFns.IsNotFriendly(inst, v)
-            if not attackable then return end
-            local range = radius + v:GetPhysicsRadius(0)
-            local x1, y1, z1 = v.Transform:GetWorldPosition()
-            local dx = x1 - x
-            local dz = z1 - z
-            local distsq = dx * dx + dz * dz
-            if distsq > 0 and distsq < range * range and DiffAngleRad(rot, math.atan2(-dz, dx)) < ARC then
-                if not v.components.fueled and v.components.burnable and not v.components.burnable:IsBurning() and not v:HasTag("burnt") then
-                    v.components.burnable:Ignite()
-                end
-                if v.components.health then
-                    v.components.health:DoFireDamage(10, nil, true)
+            if attackable then 
+                local range = radius + v:GetPhysicsRadius(0)
+                local x1, y1, z1 = v.Transform:GetWorldPosition()
+                local dx = x1 - x
+                local dz = z1 - z
+                local distsq = dx * dx + dz * dz
+                if distsq > 0 and distsq < range * range and DiffAngleRad(rot, math.atan2(-dz, dx)) < ARC then
+                    if not v.components.fueled and v.components.burnable and not v.components.burnable:IsBurning() and not v:HasTag("burnt") then
+                        v.components.burnable:Ignite()
+                    end
+                    if v.components.health then
+                        v.components.health:DoFireDamage(10, nil, true)
+                    end
                 end
             end
         end
