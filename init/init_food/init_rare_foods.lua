@@ -82,10 +82,6 @@ GLOBAL.TUNING.ROCK_FRUIT_REGROW = {
 -----------------------------------------------------------------
 -- Relevant: MakeNoGrowInWinter in standardcomponents.lua
 
-local function TogglePickGrowBlock(inst, iswinter)
-    inst.um_nogrow_winter = iswinter or nil
-end
-
 local function ToggleGrowable(growable, iswinter)
     if iswinter then
         growable:Pause("um_winter")
@@ -96,10 +92,7 @@ end
 
 local _MakeNoGrowInWinter = GLOBAL.MakeNoGrowInWinter
 function GLOBAL.MakeNoGrowInWinter(inst, ...)
-    inst:WatchWorldState("iswinter", TogglePickGrowBlock)
-    TogglePickGrowBlock(inst, TheWorld.state.iswinter)
-    local pickable = inst.components.pickable
-    if pickable then
+    if inst.components.pickable then
         _MakeNoGrowInWinter(inst, ...)
     end --making this not an elseif to do BOTH if something has both pickable and growable
     local growable = inst.components.growable
@@ -107,6 +100,7 @@ function GLOBAL.MakeNoGrowInWinter(inst, ...)
         growable:WatchWorldState("iswinter", ToggleGrowable)
         ToggleGrowable(growable, TheWorld.state.iswinter)
     end
+    inst.um_nogrow_winter = true
 end
 
 -- TODO: Config
@@ -156,7 +150,7 @@ if GetModConfigData("no_winter_growing_") then
     AddComponentPostInit("simplemagicgrower", function(self)
         local _StartGrowing = self.StartGrowing
         function self:StartGrowing(...)
-            if self.inst.um_nogrow_winter then return end
+            if self.inst.um_nogrow_winter and TheWorld.state.iswinter then return end
             return _StartGrowing(self, ...)
         end
     end)
@@ -164,18 +158,18 @@ if GetModConfigData("no_winter_growing_") then
     AddComponentPostInit("growable", function(self)
         local _StartGrowing = self.StartGrowing
         function self:StartGrowing(time, ...)
-            if self.inst.um_nogrow_winter then return false end
+            if self.inst.um_nogrow_winter and TheWorld.state.iswinter then return false end
             return _StartGrowing(self, time, ...)
         end
 
         local _DoMagicGrowth = self.DoMagicGrowth
         function self:DoMagicGrowth(doer, ...)
-            return not self.inst.um_nogrow_winter and _DoMagicGrowth(self, doer, ...) or nil
+            return not (self.inst.um_nogrow_winter and TheWorld.state.iswinter) and _DoMagicGrowth(self, doer, ...) or nil
         end
 
         local _DoGrowth = self.DoGrowth
         function self:DoGrowth(skipgrownfn, ...)
-            if self.inst.um_nogrow_winter then return false end
+            if self.inst.um_nogrow_winter and TheWorld.state.iswinter then return false end
             return _DoGrowth(self, skipgrownfn, ...)
         end
     end)
@@ -183,7 +177,7 @@ if GetModConfigData("no_winter_growing_") then
     AddComponentPostInit("pickable", function(self)
         local _Resume = self.Resume
         function self:Resume(...)
-            if self.inst.um_nogrow_winter then return false end
+            if self.inst.um_nogrow_winter and TheWorld.state.iswinter then return false end
             return _Resume(self, ...)
         end
     end)
