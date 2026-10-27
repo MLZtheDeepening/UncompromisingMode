@@ -510,6 +510,7 @@ local function fncommon(bank, build, morphlist, custombrain, stategraph, tags, d
             inst:AddTag(tag)
             if tag == "clay" then
                 inst:AddTag("electricdamageimmune")
+                inst:AddTag("heavybody") --for knockback
 
                 --inst._eyeflames = net_bool(inst.GUID, "magmahound._eyeflames", "eyeflamesdirty")   Eye flame no work :(
                 --inst:ListenForEvent("eyeflamesdirty", OnEyeFlamesDirty)
@@ -850,13 +851,15 @@ local function fnglacial()
 
     inst:ListenForEvent("ice_shield_death", RemoveIceShield)
 
-    MakeMediumBurnableCharacter(inst, "hound_body")
-
     inst.RegenIceShield = AddIceShield
 
     inst:DoTaskInTime(0, function(inst)
         inst:PushEvent("regen_iceshield")
     end)
+
+    inst.sg.mem.noknockback = true
+
+    MakeMediumBurnableCharacter(inst, "hound_body")
 
     inst.components.lootdropper:SetChanceLootTable('hound_glacial')
 
@@ -1128,6 +1131,8 @@ local function fnmagma()
     inst.UMIsAlly = IsAlly
 
     inst.ShootFire = ShootFire
+
+    inst.sg.mem.noknockback = true
 
     --[[if inst.sg ~= nil then
         inst.sg:GoToState("idle")
