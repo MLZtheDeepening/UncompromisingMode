@@ -82,17 +82,24 @@ GLOBAL.TUNING.ROCK_FRUIT_REGROW = {
 -----------------------------------------------------------------
 -- Relevant: MakeNoGrowInWinter in standardcomponents.lua
 
+local function TogglePickGrowBlock(inst, iswinter)
+    inst.um_nogrow_winter = iswinter or nil
+end
+
 local function ToggleGrowable(growable, iswinter)
     if iswinter then
-        growable:Pause("winter")
+        growable:Pause("um_winter")
     else
-        growable:Resume("winter")
+        growable:Resume("um_winter")
     end
 end
 
 local _MakeNoGrowInWinter = GLOBAL.MakeNoGrowInWinter
 function GLOBAL.MakeNoGrowInWinter(inst, ...)
-    if inst.components.pickable then
+    inst:WatchWorldState("iswinter", TogglePickGrowBlock)
+    TogglePickGrowBlock(inst, TheWorld.state.iswinter)
+    local pickable = inst.components.pickable
+    if pickable then
         _MakeNoGrowInWinter(inst, ...)
     end --making this not an elseif to do BOTH if something has both pickable and growable
     local growable = inst.components.growable
@@ -146,30 +153,37 @@ if GetModConfigData("no_winter_growing_") then
     end
 
     -- Extra check for Farm Crops, Banana Bushes, and Stone Fruit
-    AddComponentPostInit("growable", function(self)
-        local _Resume = self.Resume
-        function self:Resume(...)
-            if (self.inst:HasTag("bananabush") --[[or self.inst.prefab == "rock_avocado_bush"]]) and GLOBAL.TheWorld.state.iswinter then
-                return false
-            end
-            return _Resume(self, ...)
+    AddComponentPostInit("simplemagicgrower", function(self)
+        local _StartGrowing = self.StartGrowing
+        function self:StartGrowing(...)
+            if self.inst.um_nogrow_winter then return end
+            return _StartGrowing(self, ...)
         end
+    end)
 
+    AddComponentPostInit("growable", function(self)
         local _StartGrowing = self.StartGrowing
         function self:StartGrowing(time, ...)
-            if (self.inst:HasTag("bananabush") --[[or self.inst.prefab == "rock_avocado_bush"]]) and GLOBAL.TheWorld.state.iswinter then
-                return false
-            end
+            if self.inst.um_nogrow_winter then return false end
             return _StartGrowing(self, time, ...)
+        end
+
+        local _DoMagicGrowth = self.DoMagicGrowth
+        function self:DoMagicGrowth(doer, ...)
+            return not self.inst.um_nogrow_winter and _DoMagicGrowth(self, doer, ...) or nil
+        end
+
+        local _DoGrowth = self.DoGrowth
+        function self:DoGrowth(skipgrownfn, ...)
+            if self.inst.um_nogrow_winter then return false end
+            return _DoGrowth(self, skipgrownfn, ...)
         end
     end)
 
     AddComponentPostInit("pickable", function(self)
         local _Resume = self.Resume
         function self:Resume(...)
-            if (self.inst:HasTag("bananabush") --[[or self.inst.prefab == "rock_avocado_bush"]]) and GLOBAL.TheWorld.state.iswinter then
-                return false
-            end
+            if self.inst.um_nogrow_winter then return false end
             return _Resume(self, ...)
         end
     end)
