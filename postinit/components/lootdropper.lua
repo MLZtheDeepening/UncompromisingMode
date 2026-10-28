@@ -114,8 +114,10 @@ env.AddComponentPostInit("lootdropper", function(self)
 	end]]
 
     if TUNING.DSTU.FIRELOOT ~= nil and TUNING.DSTU.FIRELOOT > 1 then
-        function self:DropLoot(pt, ...)
-            local prefabs = self:GenerateLoot(self)
+        function self:DropLoot(pt, prefabs, ...)
+            -- Some callers pass an explicit loot table (e.g. corpse loot); only
+            -- generate when absent, matching vanilla DropLoot(pt, prefabs).
+            local supplied_prefabs = prefabs or self:GenerateLoot(self)
             local isstructure = self.inst:HasTag("structure")
 
             if self.inst.components.burnable ~= nil and not self.inst.components.burnable:IsControlledBurn() and
@@ -171,7 +173,9 @@ env.AddComponentPostInit("lootdropper", function(self)
 
                 TheWorld:PushEvent("entity_droploot", { inst = self.inst })
             else
-                return _DropLoot(self, pt, ...)
+                -- Pass the loot generated above through so GenerateLoot (and event
+                -- lootsetupfns like YOTS that append chance loot) only runs once per drop.
+                return _DropLoot(self, pt, supplied_prefabs, ...)
             end
         end
     end
