@@ -129,20 +129,20 @@ env.AddComponentPostInit("lootdropper", function(self)
                     or (self.inst.components.burnable ~= nil and
                         self.inst.components.burnable:IsBurning() and
                         (self.inst.components.fueled == nil or self.inst.components.burnable.ignorefuel)) then
-                    for k, v in pairs(prefabs) do
+                    for k, v in pairs(supplied_prefabs) do
                         if TUNING.BURNED_LOOT_OVERRIDES[v] ~= nil then
-                            prefabs[k] = TUNING.BURNED_LOOT_OVERRIDES[v]
+                            supplied_prefabs[k] = TUNING.BURNED_LOOT_OVERRIDES[v]
                         elseif PrefabExists(v .. "_cooked") then
-                            prefabs[k] = v .. "_cooked"
+                            supplied_prefabs[k] = v .. "_cooked"
                         elseif PrefabExists("cooked" .. v) then
-                            prefabs[k] = "cooked" .. v
+                            supplied_prefabs[k] = "cooked" .. v
                         else
                             self:SpawnLootPrefab("ash", pt)
                         end
                     end
                 end
 
-                for k, v in pairs(prefabs) do
+                for k, v in pairs(supplied_prefabs) do
                     self:SpawnLootPrefab(v, pt)
                     if self.inst.components.burnable ~= nil and not self.inst.components.burnable:IsControlledBurn() then
                         self:SpawnLootPrefab("fireloot", pt)
